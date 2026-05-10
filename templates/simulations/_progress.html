@@ -1,0 +1,7 @@
+<div class="mb-5 flex flex-wrap items-center gap-2">
+  {% for item in attempts %}
+    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium {% if item.sequence_order == attempt.sequence_order %}bg-indigo-600 text-white{% elif item.status == 'graded' %}bg-emerald-100 text-emerald-800{% elif item.status == 'grading_failed' %}bg-red-100 text-red-800{% else %}bg-slate-100 text-slate-700{% endif %}">
+      Task {{ item.question.task_number }}
+    </span>
+  {% endfor %}
+</div>

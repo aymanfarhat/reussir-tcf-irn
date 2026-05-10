@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}History - TCF IRN Practice{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-950">Test history</h1>
+    <p class="mt-1 text-sm text-slate-500">Review previous simulations, task feedback, and reports.</p>
+  </div>
+  <a class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100" href="{% url 'dashboard' %}">Dashboard</a>
+</div>
+
+<div class="space-y-4">
+  {% for session in sessions %}
+    <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h2 class="font-semibold text-slate-950">{{ session.test_definition.name }}</h2>
+            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{{ session.mode }}</span>
+            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">{{ session.status }}</span>
+          </div>
+          <div class="mt-2 text-sm text-slate-500">{{ session.created_at }}</div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <a class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700" href="{% url 'report' session.uuid %}">Full report</a>
+          <form method="post" action="{% url 'delete_history_session' session.uuid %}" onsubmit="return confirm('Delete this history item? This cannot be undone.');">
+            {% csrf_token %}
+            <button class="rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-md border border-indigo-100 bg-indigo-50 p-3">
+          <div class="text-xs font-medium uppercase text-indigo-700">Oral</div>
+          <div class="mt-1 font-semibold text-indigo-950">{{ session.oral_score|default:"-" }}/20 {{ session.oral_level }}</div>
+        </div>
+        <div class="rounded-md border border-emerald-100 bg-emerald-50 p-3">
+          <div class="text-xs font-medium uppercase text-emerald-700">Written</div>
+          <div class="mt-1 font-semibold text-emerald-950">{{ session.written_score|default:"-" }}/20 {{ session.written_level }}</div>
+        </div>
+      </div>
+
+      <div class="mt-4 overflow-hidden rounded-md border border-slate-200">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-slate-50 text-slate-600">
+            <tr>
+              <th class="px-3 py-2">Task</th>
+              <th class="px-3 py-2">Status</th>
+              <th class="px-3 py-2">Score</th>
+              <th class="px-3 py-2 text-right">Result</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200">
+            {% for attempt in session.attempts.all %}
+              <tr>
+                <td class="px-3 py-2">
+                  <div class="font-medium text-slate-950">Task {{ attempt.question.task_number }}</div>
+                  <div class="mt-0.5 text-xs text-slate-500">{{ attempt.question.task_type_fr }}</div>
+                </td>
+                <td class="px-3 py-2 text-slate-600">{{ attempt.status }}</td>
+                <td class="px-3 py-2">
+                  {% if attempt.grade and attempt.grade.status == 'succeeded' %}
+                    <span class="font-medium text-slate-950">{{ attempt.grade.overall_score_20 }}/20</span>
+                    <span class="text-slate-500">{{ attempt.grade.estimated_cefr_level }}</span>
+                  {% elif attempt.grade %}
+                    <span class="text-amber-700">{{ attempt.grade.status }}</span>
+                  {% else %}
+                    <span class="text-slate-500">-</span>
+                  {% endif %}
+                </td>
+                <td class="px-3 py-2 text-right">
+                  {% if attempt.status == 'graded' or attempt.status == 'grading_failed' %}
+                    <a class="font-medium text-indigo-700 hover:text-indigo-900" href="{% url 'task_grade' session.uuid attempt.sequence_order %}">Task feedback</a>
+                  {% else %}
+                    <a class="font-medium text-slate-600 hover:text-slate-900" href="{% url 'task_detail' session.uuid attempt.sequence_order %}">Continue</a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td class="px-3 py-4 text-slate-500" colspan="4">No tasks saved for this session.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  {% empty %}
+    <div class="rounded-lg border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">No sessions yet.</div>
+  {% endfor %}
+</div>
+{% endblock %}

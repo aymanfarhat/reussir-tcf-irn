@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Sign up - TCF IRN Practice{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+  <h1 class="text-xl font-bold text-slate-950">Create your account</h1>
+  <form class="mt-6 space-y-4" method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div>
+        <label class="text-sm font-medium text-slate-700" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        <input class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2" type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}" required>
+        {% if field.help_text %}<p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>{% endif %}
+        <div class="text-sm text-red-700">{{ field.errors }}</div>
+      </div>
+    {% endfor %}
+    <button class="w-full rounded-md bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700" type="submit">Create account</button>
+  </form>
+</div>
+{% endblock %}

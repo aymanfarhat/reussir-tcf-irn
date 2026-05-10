@@ -10,10 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,6 +36,9 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "practice",
+    "exams",
+    "simulations",
+    "grading",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -55,7 +62,7 @@ ROOT_URLCONF = "tcf_irn.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -116,6 +123,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_REDIRECT_URL = "login"
+
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+OPENAI_GRADING_MODEL = os.environ.get("OPENAI_GRADING_MODEL", "gpt-5.5")
+OPENAI_IMPROVEMENT_MODEL = os.environ.get("OPENAI_IMPROVEMENT_MODEL", OPENAI_GRADING_MODEL)
+OPENAI_AUDIO_GRADING_MODEL = os.environ.get("OPENAI_AUDIO_GRADING_MODEL", "gpt-audio")
+OPENAI_TRANSCRIPTION_MODEL = os.environ.get(
+    "OPENAI_TRANSCRIPTION_MODEL", "gpt-4o-mini-transcribe"
+)
+OPENAI_TRANSCRIPTION_LANGUAGE = os.environ.get("OPENAI_TRANSCRIPTION_LANGUAGE", "fr")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
