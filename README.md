@@ -19,6 +19,10 @@ OPENAI_IMPROVEMENT_MODEL=gpt-5.5
 OPENAI_AUDIO_GRADING_MODEL=gpt-audio
 OPENAI_TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
 OPENAI_TRANSCRIPTION_LANGUAGE=fr
+OPENAI_TTS_MODEL=gpt-4o-mini-tts
+OPENAI_TTS_VOICE=marin
+OPENAI_TTS_FORMAT=mp3
+OPENAI_TTS_INSTRUCTIONS=Speak clearly in French as a neutral TCF IRN examiner. Use a calm, natural pace.
 ```
 
 Run database migrations:
@@ -45,6 +49,8 @@ Run tests:
 uv run python manage.py test
 ```
 
-When `OPENAI_API_KEY` is not set, grading uses a local development stub so the end-to-end simulator remains testable. Set the key to use OpenAI for transcription, structured grading, improved response rewrites, and optional audio-aware oral delivery feedback.
+When `OPENAI_API_KEY` is not set, grading uses a local development stub so the end-to-end simulator remains testable. Set the key to use OpenAI for transcription, structured grading, improved response rewrites, oral question text-to-speech, and optional audio-aware oral delivery feedback.
+
+Oral question text-to-speech is generated lazily on first play and cached under `media/question_tts/`, which is ignored by git.
 
 The main dashboard starts full oral/written simulations. `/practice/` starts a single targeted task by task type and theme while reusing the same timed task pages, grading, reports, and history.

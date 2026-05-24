@@ -14,7 +14,16 @@
       </div>
       <div class="rounded-md bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-800" x-text="timeLabel"></div>
     </div>
-    <blockquote class="mt-5 rounded-md border-l-4 border-indigo-500 bg-indigo-50 p-4 text-slate-900">{{ attempt.question.prompt }}</blockquote>
+    <div class="mt-5 rounded-md border-l-4 border-indigo-500 bg-indigo-50 p-4">
+      <blockquote class="text-slate-900">{{ attempt.question.prompt }}</blockquote>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button type="button" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-medium text-indigo-700 shadow-sm ring-1 ring-inset ring-indigo-200 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60" @click="playQuestion()" :disabled="questionAudioLoading">
+          <span x-text="questionAudioLoading ? 'Loading audio...' : 'Play question'">Play question</span>
+        </button>
+        <span class="text-xs text-indigo-900" x-text="questionAudioStatus">AI-generated examiner audio.</span>
+        <audio x-ref="questionAudio" preload="none" src="{{ question_audio_url }}" @ended="questionAudioStatus = 'AI-generated examiner audio.'" @error="questionAudioLoading = false; questionAudioStatus = 'Question audio is unavailable right now.'"></audio>
+      </div>
+    </div>
 
     <div class="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
       <input class="hidden" x-ref="audioInput" type="file" name="audio_file" accept="audio/*">
@@ -60,6 +69,8 @@ function oralTask(deadline) {
     recording: false,
     audioUrl: '',
     status: 'Recorder ready. You can also type a manual transcript.',
+    questionAudioLoading: false,
+    questionAudioStatus: 'AI-generated examiner audio.',
     timeLabel: '',
     init() {
       this.tick();
@@ -70,6 +81,24 @@ function oralTask(deadline) {
       const minutes = Math.floor(remaining / 60000);
       const seconds = Math.floor((remaining % 60000) / 1000);
       this.timeLabel = remaining <= 0 ? 'Time expired' : `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    },
+    async playQuestion() {
+      const audio = this.$refs.questionAudio;
+      if (!audio) {
+        this.questionAudioStatus = 'Question audio is unavailable right now.';
+        return;
+      }
+      this.questionAudioLoading = true;
+      this.questionAudioStatus = 'Loading question audio...';
+      try {
+        audio.currentTime = 0;
+        await audio.play();
+        this.questionAudioStatus = 'Playing question audio.';
+      } catch (error) {
+        this.questionAudioStatus = 'Question audio is unavailable right now.';
+      } finally {
+        this.questionAudioLoading = false;
+      }
     },
     async start() {
       if (!navigator.mediaDevices || !window.MediaRecorder) {

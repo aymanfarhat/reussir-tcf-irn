@@ -140,6 +140,16 @@ OPENAI_TRANSCRIPTION_MODEL = os.environ.get(
     "OPENAI_TRANSCRIPTION_MODEL", "gpt-4o-mini-transcribe"
 )
 OPENAI_TRANSCRIPTION_LANGUAGE = os.environ.get("OPENAI_TRANSCRIPTION_LANGUAGE", "fr")
+OPENAI_TTS_MODEL = os.environ.get("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
+OPENAI_TTS_VOICE = os.environ.get("OPENAI_TTS_VOICE", "marin")
+OPENAI_TTS_FORMAT = os.environ.get("OPENAI_TTS_FORMAT", "mp3")
+OPENAI_TTS_INSTRUCTIONS = os.environ.get(
+    "OPENAI_TTS_INSTRUCTIONS",
+    (
+        "Speak clearly in French as a neutral TCF IRN examiner. "
+        "Use a calm, natural pace."
+    ),
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

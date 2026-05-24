@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -19,6 +20,10 @@ from simulations.services.navigation import (
     mark_session_completion_if_ready,
     next_attempt,
     start_attempt_if_needed,
+)
+from simulations.services.question_audio import (
+    QuestionAudioUnavailable,
+    get_or_create_question_audio,
 )
 from simulations.services.scoring import update_session_scores
 from simulations.services.start_session import start_test_session
@@ -149,6 +154,32 @@ def task_detail(request, session_uuid, order: int):
         "simulations/task_written.html" if attempt.is_written else "simulations/task_oral.html"
     )
     return render_task(request, template, session, attempt)
+
+
+@login_required
+def question_audio(request, session_uuid, order: int):
+    session = get_session_for_user(session_uuid, request.user)
+    attempt = get_object_or_404(
+        TaskAttempt.objects.select_related(
+            "test_session",
+            "question",
+            "question__task_definition",
+            "question__task_definition__section",
+        ),
+        test_session=session,
+        sequence_order=order,
+    )
+    if not attempt.is_oral:
+        raise Http404("Question audio is only available for oral tasks.")
+
+    try:
+        audio_file = get_or_create_question_audio(attempt.question)
+    except QuestionAudioUnavailable as exc:
+        return HttpResponse(str(exc), status=503, content_type="text/plain")
+
+    response = FileResponse(open(audio_file.path, "rb"), content_type=audio_file.content_type)
+    response["Cache-Control"] = "private, max-age=3600"
+    return response
 
 
 @login_required
@@ -330,6 +361,14 @@ def render_task(request, template: str, session: TestSession, attempt: TaskAttem
             "attempt": attempt,
             "attempts": attempts,
             "deadline_iso": deadline_iso,
+            "question_audio_url": (
+                reverse(
+                    "question_audio",
+                    kwargs={"session_uuid": session.uuid, "order": attempt.sequence_order},
+                )
+                if attempt.is_oral
+                else ""
+            ),
             "submit_url": reverse(
                 "submit_task",
                 kwargs={"session_uuid": session.uuid, "order": attempt.sequence_order},

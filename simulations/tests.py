@@ -1,6 +1,8 @@
-from pathlib import Path
+import tempfile
 from decimal import Decimal
 from html import unescape
+from pathlib import Path
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -132,6 +134,141 @@ class SimulationFlowTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(first_attempt.manual_transcript)
         self.assertEqual(first_attempt.status, TaskAttempt.STATUS_GRADED)
+
+    def test_oral_task_page_includes_question_audio_control(self):
+        self.client.login(username="learner", password="pass12345")
+        session = start_test_session(self.user, "oral")
+        first_attempt = session.attempts.order_by("sequence_order").first()
+
+        response = self.client.get(
+            reverse(
+                "task_detail",
+                kwargs={"session_uuid": session.uuid, "order": first_attempt.sequence_order},
+            )
+        )
+
+        self.assertContains(response, "Play question")
+        self.assertContains(response, "AI-generated examiner audio")
+        self.assertContains(
+            response,
+            reverse(
+                "question_audio",
+                kwargs={"session_uuid": session.uuid, "order": first_attempt.sequence_order},
+            ),
+        )
+
+    def test_question_audio_endpoint_generates_and_reuses_cached_tts(self):
+        session = start_test_session(self.user, "oral")
+        first_attempt = session.attempts.order_by("sequence_order").first()
+        self.client.login(username="learner", password="pass12345")
+        created_calls = []
+
+        class FakeSpeechResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc_value, traceback):
+                return False
+
+            def stream_to_file(self, path):
+                Path(path).write_bytes(b"fake mp3 bytes")
+
+        class FakeStreamingResponse:
+            def create(self, **kwargs):
+                created_calls.append(kwargs)
+                return FakeSpeechResponse()
+
+        class FakeSpeech:
+            with_streaming_response = FakeStreamingResponse()
+
+        class FakeAudio:
+            speech = FakeSpeech()
+
+        class FakeClient:
+            audio = FakeAudio()
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(
+            OPENAI_API_KEY="test-key",
+            OPENAI_TTS_MODEL="gpt-4o-mini-tts",
+            OPENAI_TTS_VOICE="marin",
+            OPENAI_TTS_FORMAT="mp3",
+            OPENAI_TTS_INSTRUCTIONS="Speak clearly in French.",
+            MEDIA_ROOT=media_root,
+        ), patch(
+            "simulations.services.question_audio.OpenAI", return_value=FakeClient()
+        ) as openai_mock:
+            url = reverse(
+                "question_audio",
+                kwargs={"session_uuid": session.uuid, "order": first_attempt.sequence_order},
+            )
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response["Content-Type"], "audio/mpeg")
+            self.assertEqual(b"".join(response.streaming_content), b"fake mp3 bytes")
+            self.assertEqual(len(created_calls), 1)
+            self.assertEqual(created_calls[0]["model"], "gpt-4o-mini-tts")
+            self.assertEqual(created_calls[0]["voice"], "marin")
+            self.assertEqual(created_calls[0]["response_format"], "mp3")
+            self.assertEqual(created_calls[0]["input"], first_attempt.question.prompt)
+
+            response = self.client.get(url)
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(b"".join(response.streaming_content), b"fake mp3 bytes")
+            self.assertEqual(len(created_calls), 1)
+            openai_mock.assert_called_once_with(api_key="test-key")
+
+    def test_question_audio_endpoint_returns_unavailable_without_api_key(self):
+        session = start_test_session(self.user, "oral")
+        first_attempt = session.attempts.order_by("sequence_order").first()
+        self.client.login(username="learner", password="pass12345")
+
+        with tempfile.TemporaryDirectory() as media_root, override_settings(
+            OPENAI_API_KEY="",
+            MEDIA_ROOT=media_root,
+        ):
+            response = self.client.get(
+                reverse(
+                    "question_audio",
+                    kwargs={
+                        "session_uuid": session.uuid,
+                        "order": first_attempt.sequence_order,
+                    },
+                )
+            )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertIn("OPENAI_API_KEY", response.content.decode())
+
+    def test_question_audio_endpoint_rejects_written_task(self):
+        session = start_test_session(self.user, "written")
+        first_attempt = session.attempts.order_by("sequence_order").first()
+        self.client.login(username="learner", password="pass12345")
+
+        response = self.client.get(
+            reverse(
+                "question_audio",
+                kwargs={"session_uuid": session.uuid, "order": first_attempt.sequence_order},
+            )
+        )
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_user_cannot_access_another_users_question_audio(self):
+        other = User.objects.create_user("other-audio", password="pass12345")
+        session = start_test_session(other, "oral")
+        first_attempt = session.attempts.order_by("sequence_order").first()
+        self.client.login(username="learner", password="pass12345")
+
+        response = self.client.get(
+            reverse(
+                "question_audio",
+                kwargs={"session_uuid": session.uuid, "order": first_attempt.sequence_order},
+            )
+        )
+
+        self.assertEqual(response.status_code, 403)
 
     def test_full_simulation_can_be_completed(self):
         self.client.login(username="learner", password="pass12345")

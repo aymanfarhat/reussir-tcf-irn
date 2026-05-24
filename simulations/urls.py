@@ -15,6 +15,11 @@ urlpatterns = [
     path("tests/start/<str:mode>/", views.start_test, name="start_test"),
     path("tests/<uuid:session_uuid>/tasks/<int:order>/", views.task_detail, name="task_detail"),
     path(
+        "tests/<uuid:session_uuid>/tasks/<int:order>/question-audio/",
+        views.question_audio,
+        name="question_audio",
+    ),
+    path(
         "tests/<uuid:session_uuid>/tasks/<int:order>/submit/",
         views.submit_task,
         name="submit_task",
