@@ -1,0 +1,4 @@
+.nuxt
+.nuxt-build
+.output
+node_modules

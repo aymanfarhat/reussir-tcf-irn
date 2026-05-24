@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TCF IRN — Banque de questions (revue)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+    .prose-fr p { margin-bottom: 0.75rem; }
+    .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    details > summary { list-style: none; cursor: pointer; }
+    details > summary::-webkit-details-marker { display: none; }
+    .chevron { transition: transform 0.15s ease; }
+    details[open] > summary .chevron { transform: rotate(90deg); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+<!-- ============ HEADER ============ -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900">TCF IRN — Banque de questions</h1>
+        <p class="text-sm text-slate-500 mt-0.5" id="header-subtitle">Chargement…</p>
+      </div>
+      <div class="flex items-center gap-2" id="header-stats"></div>
+    </div>
+    <!-- Tabs -->
+    <nav class="mt-4 flex gap-1 border-b border-slate-200 -mb-px">
+      <button data-tab="questions" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800">Questions</button>
+      <button data-tab="tasks" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800">Tâches &amp; rubriques</button>
+      <button data-tab="overview" class="tab-btn px-4 py-2 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-800">Vue d'ensemble</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ FILE PICKER (shown only if auto-load fails) ============ -->
+<div id="file-picker" class="hidden max-w-2xl mx-auto mt-12 px-4">
+  <div class="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+    <h2 class="text-lg font-semibold text-slate-900">Charger la banque de questions</h2>
+    <p class="text-sm text-slate-600 mt-1">
+      Le navigateur n'a pas pu charger automatiquement <code class="bg-slate-100 px-1 rounded text-xs">question_bank.json</code> (probablement parce que le fichier est ouvert en local).
+      Sélectionnez-le manuellement ci-dessous, ou lancez un serveur local depuis ce dossier&nbsp;:
+    </p>
+    <pre class="bg-slate-900 text-slate-100 text-xs p-3 rounded mt-3 overflow-x-auto">python3 -m http.server 8000
+# puis ouvrez http://localhost:8000/index.html</pre>
+    <input type="file" id="file-input" accept="application/json" class="mt-4 block w-full text-sm text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-700">
+    <p id="file-error" class="text-sm text-red-600 mt-2 hidden"></p>
+  </div>
+</div>
+
+<!-- ============ MAIN CONTENT ============ -->
+<main id="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 hidden"></main>
+
+<!-- ============ GRADER MODAL ============ -->
+<div id="grader-modal" class="fixed inset-0 z-50 hidden">
+  <div class="absolute inset-0 bg-slate-900/60" data-modal-close></div>
+  <div class="absolute inset-0 flex items-stretch sm:items-center justify-center p-0 sm:p-6 pointer-events-none">
+    <div class="bg-white w-full sm:max-w-4xl sm:rounded-lg shadow-xl flex flex-col max-h-screen sm:max-h-[90vh] pointer-events-auto">
+      <div class="flex items-center justify-between gap-3 px-5 py-3 border-b border-slate-200 flex-shrink-0">
+        <div class="min-w-0">
+          <h3 class="text-base font-semibold text-slate-900 truncate" id="grader-title">Prompt de notation</h3>
+          <p class="text-xs text-slate-500 truncate" id="grader-subtitle"></p>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button id="grader-view-rendered" class="grader-view-btn px-2.5 py-1 text-xs rounded border border-slate-300 bg-white hover:bg-slate-50">Aperçu</button>
+          <button id="grader-view-raw" class="grader-view-btn px-2.5 py-1 text-xs rounded border border-slate-300 bg-white hover:bg-slate-50">Markdown brut</button>
+          <button id="grader-copy" class="px-2.5 py-1 text-xs rounded bg-indigo-600 text-white hover:bg-indigo-700">Copier</button>
+          <button data-modal-close class="px-2 py-1 text-slate-500 hover:text-slate-800" aria-label="Fermer">
+            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.3 4.3a1 1 0 0 1 1.4 0L10 8.6l4.3-4.3a1 1 0 1 1 1.4 1.4L11.4 10l4.3 4.3a1 1 0 0 1-1.4 1.4L10 11.4l-4.3 4.3a1 1 0 0 1-1.4-1.4L8.6 10 4.3 5.7a1 1 0 0 1 0-1.4z" clip-rule="evenodd"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="grader-body" class="overflow-y-auto p-5 flex-1 min-h-0">
+        <div id="grader-loading" class="text-sm text-slate-500">Chargement…</div>
+        <article id="grader-rendered" class="prose prose-slate max-w-none hidden"></article>
+        <pre id="grader-raw" class="hidden text-xs leading-relaxed font-mono whitespace-pre-wrap bg-slate-50 border border-slate-200 rounded p-4"></pre>
+        <p id="grader-error" class="hidden text-sm text-red-600"></p>
+      </div>
+      <div class="px-5 py-2 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 flex-shrink-0">
+        <span id="grader-meta"></span>
+        <span><kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded">Échap</kbd> pour fermer</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .prose-slate h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin: 1.25rem 0 0.75rem; }
+  .prose-slate h2 { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin: 1.5rem 0 0.5rem; padding-bottom: 0.25rem; border-bottom: 1px solid #e2e8f0; }
+  .prose-slate h3 { font-size: 1rem; font-weight: 600; color: #1e293b; margin: 1.25rem 0 0.4rem; }
+  .prose-slate p, .prose-slate ul, .prose-slate ol { margin: 0.5rem 0; line-height: 1.6; font-size: 0.9rem; color: #334155; }
+  .prose-slate ul, .prose-slate ol { padding-left: 1.5rem; }
+  .prose-slate li { margin: 0.15rem 0; }
+  .prose-slate code { background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.82em; color: #0f172a; }
+  .prose-slate pre { background: #0f172a; color: #f1f5f9; padding: 0.85rem 1rem; border-radius: 6px; font-size: 0.78rem; overflow-x: auto; margin: 0.75rem 0; }
+  .prose-slate pre code { background: transparent; padding: 0; color: inherit; font-size: inherit; }
+  .prose-slate blockquote { border-left: 3px solid #6366f1; padding: 0.5rem 0.85rem; margin: 0.75rem 0; background: #eef2ff; color: #1e293b; border-radius: 0 4px 4px 0; font-size: 0.9rem; }
+  .prose-slate blockquote p { margin: 0.25rem 0; }
+  .prose-slate table { width: 100%; font-size: 0.85rem; border-collapse: collapse; margin: 0.75rem 0; }
+  .prose-slate th, .prose-slate td { border: 1px solid #e2e8f0; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  .prose-slate th { background: #f8fafc; font-weight: 600; color: #334155; }
+  .prose-slate hr { margin: 1.5rem 0; border: none; border-top: 1px solid #e2e8f0; }
+  .prose-slate strong { color: #0f172a; }
+  .grader-view-btn.active { background: #4338ca; color: white; border-color: #4338ca; }
+</style>
+
+<script>
+const state = {
+  data: null,
+  activeTab: 'questions',
+  filters: { section: 'all', taskNumber: 'all', search: '' },
+};
+
+// Visual styling per section. Labels come from the JSON (sec.short_label || sec.name_fr).
+const SECTION_STYLES = {
+  expression_orale:  { bg: 'bg-indigo-50',  text: 'text-indigo-800',  ring: 'ring-indigo-200',  dot: 'bg-indigo-500'  },
+  expression_ecrite: { bg: 'bg-emerald-50', text: 'text-emerald-800', ring: 'ring-emerald-200', dot: 'bg-emerald-500' },
+};
+function sectionLabel(sectionId) {
+  const sec = state.data && state.data.sections.find(s => s.id === sectionId);
+  if (!sec) return sectionId;
+  return sec.id === 'expression_orale' ? 'Oral'
+       : sec.id === 'expression_ecrite' ? 'Écrit'
+       : sec.name_fr;
+}
+function sectionFullName(sectionId) {
+  const sec = state.data && state.data.sections.find(s => s.id === sectionId);
+  return sec ? sec.name_fr : sectionId;
+}
+
+const LEVEL_COLORS = {
+  A1: 'bg-red-100 text-red-700',
+  A2: 'bg-orange-100 text-orange-700',
+  B1: 'bg-amber-100 text-amber-700',
+  B2: 'bg-lime-100 text-lime-700',
+  C1: 'bg-emerald-100 text-emerald-700',
+  C2: 'bg-teal-100 text-teal-700',
+};
+
+// ---------- Loading ----------
+async function tryAutoLoad() {
+  try {
+    const res = await fetch('./question_bank.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('http ' + res.status);
+    state.data = await res.json();
+    boot();
+  } catch (e) {
+    document.getElementById('file-picker').classList.remove('hidden');
+  }
+}
+
+document.getElementById('file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      state.data = JSON.parse(ev.target.result);
+      document.getElementById('file-picker').classList.add('hidden');
+      boot();
+    } catch (err) {
+      const errEl = document.getElementById('file-error');
+      errEl.textContent = 'Erreur de parsing JSON: ' + err.message;
+      errEl.classList.remove('hidden');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// ---------- Boot ----------
+function boot() {
+  document.getElementById('content').classList.remove('hidden');
+  renderHeader();
+  setupTabs();
+  render();
+}
+
+function renderHeader() {
+  const m = state.data.metadata;
+  document.getElementById('header-subtitle').textContent =
+    `Niveau cible ${m.target_level} • ${m.scope} • Version ${m.version}`;
+  const stats = document.getElementById('header-stats');
+  const sectionPill = (sec) => {
+    const style = SECTION_STYLES[sec.id] || { bg: 'bg-slate-100', text: 'text-slate-700', dot: 'bg-slate-500' };
+    return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full ${style.bg} ${style.text} text-xs font-medium">
+      <span class="w-1.5 h-1.5 rounded-full ${style.dot}"></span>
+      ${sectionLabel(sec.id)} ${sec.total_duration_minutes} min
+    </span>`;
+  };
+  stats.innerHTML = `
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+      <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+      ${state.data.questions.length} questions
+    </span>
+    ${state.data.sections.map(sectionPill).join('')}
+  `;
+}
+
+function setupTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.activeTab = btn.dataset.tab;
+      render();
+    });
+  });
+}
+
+function render() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    if (btn.dataset.tab === state.activeTab) {
+      btn.classList.add('text-indigo-700', 'border-indigo-600');
+      btn.classList.remove('text-slate-500', 'border-transparent');
+    } else {
+      btn.classList.remove('text-indigo-700', 'border-indigo-600');
+      btn.classList.add('text-slate-500', 'border-transparent');
+    }
+  });
+  const main = document.getElementById('content');
+  if (state.activeTab === 'questions') main.innerHTML = renderQuestionsTab();
+  else if (state.activeTab === 'tasks') main.innerHTML = renderTasksTab();
+  else main.innerHTML = renderOverviewTab();
+  attachEvents();
+}
+
+// ---------- Helpers ----------
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function nlToBr(s) { return escapeHtml(s).replace(/\n/g, '<br>'); }
+
+function findTaskDef(taskId) {
+  for (const sec of state.data.sections) {
+    for (const t of sec.tasks) {
+      if (t.id === taskId) return { task: t, section: sec };
+    }
+  }
+  return null;
+}
+
+function badge(text, classes='bg-slate-100 text-slate-700') {
+  return `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${classes}">${escapeHtml(text)}</span>`;
+}
+
+function chipList(items, classes='bg-slate-100 text-slate-700') {
+  if (!items || !items.length) return '<span class="text-xs text-slate-400">—</span>';
+  return items.map(i => `<span class="inline-flex items-center px-2 py-0.5 rounded text-xs ${classes}">${escapeHtml(i)}</span>`).join(' ');
+}
+
+function bulletList(items) {
+  if (!items || !items.length) return '<p class="text-sm text-slate-400">—</p>';
+  return `<ul class="list-disc list-outside pl-5 space-y-1 text-sm text-slate-700">
+    ${items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+  </ul>`;
+}
+
+function numberedList(items) {
+  if (!items || !items.length) return '<p class="text-sm text-slate-400">—</p>';
+  return `<ol class="list-decimal list-outside pl-5 space-y-1 text-sm text-slate-700">
+    ${items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}
+  </ol>`;
+}
+
+// ---------- Questions tab ----------
+function renderQuestionsTab() {
+  const tasks = [];
+  for (const sec of state.data.sections) {
+    for (const t of sec.tasks) tasks.push({ ...t, sectionId: sec.id });
+  }
+  const filtered = state.data.questions.filter(q => {
+    if (state.filters.section !== 'all' && q.section !== state.filters.section) return false;
+    if (state.filters.taskNumber !== 'all' && String(q.task_number) !== state.filters.taskNumber) return false;
+    if (state.filters.search) {
+      const s = state.filters.search.toLowerCase();
+      const hay = (q.question + ' ' + q.id + ' ' + (q.themes||[]).join(' ')).toLowerCase();
+      if (!hay.includes(s)) return false;
+    }
+    return true;
+  });
+
+  const sectionOpts = ['all', ...state.data.sections.map(s => s.id)];
+  const taskOpts = ['all', ...tasks.map(t => String(t.task_number))];
+
+  const filterBar = `
+    <div class="bg-white border border-slate-200 rounded-lg p-4 mb-6 sticky top-[8.5rem] z-20 shadow-sm">
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Section</label>
+          <select id="filter-section" class="rounded border-slate-300 text-sm py-1.5 px-2 bg-white">
+            ${sectionOpts.map(o => `
+              <option value="${o}" ${state.filters.section === o ? 'selected' : ''}>
+                ${o === 'all' ? 'Toutes' : escapeHtml(sectionFullName(o))}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 mb-1">Tâche</label>
+          <select id="filter-task" class="rounded border-slate-300 text-sm py-1.5 px-2 bg-white">
+            <option value="all" ${state.filters.taskNumber === 'all' ? 'selected' : ''}>Toutes</option>
+            ${tasks.map(t => `
+              <option value="${t.task_number}" ${state.filters.taskNumber === String(t.task_number) ? 'selected' : ''}>
+                Tâche ${t.task_number} — ${escapeHtml(t.name_fr)}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-xs font-medium text-slate-500 mb-1">Recherche (texte, ID, thème)</label>
+          <input id="filter-search" type="search" value="${escapeHtml(state.filters.search)}" placeholder="ex: santé, q025…"
+            class="w-full rounded border-slate-300 text-sm py-1.5 px-2">
+        </div>
+        <div class="ml-auto text-sm text-slate-500">
+          <strong class="text-slate-900">${filtered.length}</strong> / ${state.data.questions.length} questions
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (!filtered.length) {
+    return filterBar + `<div class="text-center py-12 text-slate-500">Aucune question ne correspond à ces filtres.</div>`;
+  }
+
+  return filterBar + `<div class="space-y-4">${filtered.map(renderQuestionCard).join('')}</div>`;
+}
+
+function renderQuestionCard(q) {
+  const sec = SECTION_STYLES[q.section];
+  const td = findTaskDef(q.task_id);
+  const isWritten = q.section === 'expression_ecrite';
+  const er = q.expected_response;
+
+  // Word count info
+  let wcInfo = '';
+  if (isWritten) {
+    const wc = er.word_count;
+    wcInfo = `<span class="inline-flex items-center gap-1 text-xs text-slate-600">
+      <strong class="text-slate-900">${wc.min}–${wc.max} mots</strong> (cible ~${wc.target})
+    </span>`;
+  } else {
+    const wc = er.word_count_target;
+    wcInfo = `<span class="inline-flex items-center gap-1 text-xs text-slate-600">
+      <strong class="text-slate-900">~${wc.ideal} mots</strong> (${wc.min}–${wc.max})
+    </span>`;
+  }
+
+  const timing = isWritten
+    ? `${q.timing.suggested_duration_minutes} min suggérées`
+    : `${q.timing.duration_minutes} min, sans préparation`;
+
+  return `
+    <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+      <div class="px-5 py-3 border-b border-slate-100 flex items-center flex-wrap gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold ${sec.bg} ${sec.text}">
+          <span class="w-1.5 h-1.5 rounded-full ${sec.dot}"></span>${sectionLabel(q.section)}
+        </span>
+        ${badge('Tâche ' + q.task_number, 'bg-slate-100 text-slate-700')}
+        ${badge(q.task_type_fr, 'bg-slate-100 text-slate-600')}
+        <span class="text-xs text-slate-400 font-mono">${q.id}</span>
+        <span class="text-xs text-slate-400">•</span>
+        <span class="text-xs text-slate-600">${escapeHtml(timing)}</span>
+        <span class="text-xs text-slate-400">•</span>
+        ${wcInfo}
+      </div>
+
+      <div class="px-5 py-4">
+        <p class="text-base text-slate-900 leading-relaxed">${escapeHtml(q.question)}</p>
+        ${q.themes && q.themes.length ? `<div class="mt-3 flex flex-wrap gap-1">${chipList(q.themes, 'bg-slate-50 text-slate-600 ring-1 ring-slate-200')}</div>` : ''}
+        ${q.examiner_role_fr ? `<p class="mt-2 text-xs text-slate-500"><strong class="text-slate-700">Rôle examinateur:</strong> ${escapeHtml(q.examiner_role_fr)}</p>` : ''}
+        ${q.addressee ? `<p class="mt-2 text-xs text-slate-500"><strong class="text-slate-700">Destinataire:</strong> ${escapeHtml(q.addressee)} • <strong class="text-slate-700">Registre:</strong> ${escapeHtml(q.register || '—')}${q.channel ? ' • <strong class="text-slate-700">Support:</strong> ' + escapeHtml(q.channel) : ''}</p>` : ''}
+      </div>
+
+      <div class="border-t border-slate-100 px-5 py-2 flex items-center justify-between gap-2 bg-slate-50/60">
+        <button type="button" data-grader="${q.id}"
+          class="grader-btn inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-md bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 0 0-1 1v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V3a1 1 0 0 0-1-1H9zm0 2h2v1H9V4zm-2 5a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1zm0 3a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1zm0 3a1 1 0 0 1 1-1h2a1 1 0 1 1 0 2H8a1 1 0 0 1-1-1z"/></svg>
+          Prompt de notation (LLM)
+        </button>
+      </div>
+
+      <details class="border-t border-slate-100 group">
+        <summary class="px-5 py-3 text-sm font-medium text-indigo-700 hover:bg-slate-50 flex items-center gap-2">
+          <span class="chevron">▸</span> Voir les modèles de réponse et la rubrique
+        </summary>
+        <div class="px-5 py-5 bg-slate-50 border-t border-slate-100 space-y-5">
+          ${renderQuestionDetails(q, er, isWritten, td)}
+        </div>
+      </details>
+    </div>
+  `;
+}
+
+function renderQuestionDetails(q, er, isWritten, td) {
+  // Structure
+  const structure = `
+    <section>
+      <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Structure attendue</h4>
+      ${numberedList(er.structure)}
+    </section>
+  `;
+
+  const refA = renderModelAnswer('Modèle A — réponse de référence', er.reference_answer, er.reference_answer_word_count, isWritten);
+  const refB = er.alternative_answer
+    ? renderModelAnswer('Modèle B — alternative', er.alternative_answer, er.alternative_answer_word_count, isWritten)
+    : '';
+
+  const elements = `
+    <section>
+      <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Éléments à couvrir</h4>
+      ${bulletList(er.key_elements_to_cover)}
+    </section>
+  `;
+
+  const lex = `
+    <section class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Lexique clé</h4>
+        <div class="flex flex-wrap gap-1">${chipList(er.key_vocabulary, 'bg-amber-50 text-amber-800 ring-1 ring-amber-200')}</div>
+      </div>
+      <div>
+        <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Grammaire clé</h4>
+        <div class="flex flex-wrap gap-1">${chipList(er.key_grammar, 'bg-sky-50 text-sky-800 ring-1 ring-sky-200')}</div>
+      </div>
+    </section>
+  `;
+
+  const focus = `
+    <section>
+      <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Points d'attention de l'examinateur</h4>
+      ${bulletList(q.evaluation_focus)}
+    </section>
+  `;
+
+  const rubricLink = td ? `
+    <section class="border-t border-slate-200 pt-4">
+      <details>
+        <summary class="text-xs font-semibold uppercase tracking-wide text-slate-500 hover:text-slate-700 inline-flex items-center gap-2">
+          <span class="chevron">▸</span> Rubrique de notation pour cette tâche
+        </summary>
+        <div class="mt-3">${renderTaskRubric(td.task)}</div>
+      </details>
+    </section>
+  ` : '';
+
+  return structure + refA + refB + elements + lex + focus + rubricLink;
+}
+
+function renderModelAnswer(title, text, wordCount, isWritten) {
+  if (!text) return '';
+  return `
+    <section>
+      <div class="flex items-center justify-between mb-2">
+        <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500">${escapeHtml(title)}</h4>
+        ${wordCount ? `<span class="text-xs text-slate-500"><strong class="text-slate-700">${wordCount}</strong> mots</span>` : ''}
+      </div>
+      <div class="bg-white border border-slate-200 rounded-md p-4 text-sm text-slate-800 leading-relaxed prose-fr">
+        ${nlToBr(text)}
+      </div>
+    </section>
+  `;
+}
+
+// ---------- Tasks tab ----------
+function renderTasksTab() {
+  return state.data.sections.map(renderSectionTasks).join('');
+}
+
+function renderSectionTasks(sec) {
+  const style = SECTION_STYLES[sec.id];
+  return `
+    <section class="mb-10">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-lg font-bold text-slate-900">${escapeHtml(sec.name_fr)}</h2>
+        <span class="text-sm text-slate-500">— ${sec.total_duration_minutes} min, ${sec.number_of_tasks} tâches</span>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">${escapeHtml(sec.format)}</p>
+      ${sec.section_notes && sec.section_notes.length
+        ? `<div class="mb-5 bg-amber-50 border border-amber-200 rounded-md p-3"><h4 class="text-xs font-semibold uppercase tracking-wide text-amber-800 mb-1.5">Notes</h4>${bulletList(sec.section_notes)}</div>`
+        : ''}
+      <div class="space-y-4">
+        ${sec.tasks.map(t => renderTaskCard(t, style)).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderTaskCard(task, style) {
+  const wc = task.word_count
+    ? `${task.word_count.min}–${task.word_count.max} mots (cible ${task.word_count.target})`
+    : task.expected_response_word_count
+      ? `${task.expected_response_word_count.min}–${task.expected_response_word_count.max} mots oral (~${task.expected_response_word_count.ideal} idéal)`
+      : '';
+  const dur = task.duration_minutes != null
+    ? `${task.duration_minutes} min, sans préparation`
+    : `${task.suggested_duration_minutes} min suggérées`;
+
+  return `
+    <div class="bg-white border border-slate-200 rounded-lg shadow-sm">
+      <div class="px-5 py-4 border-b border-slate-100">
+        <div class="flex items-start justify-between flex-wrap gap-2">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              ${badge('Tâche ' + task.task_number, style.bg + ' ' + style.text)}
+              <h3 class="text-base font-semibold text-slate-900">${escapeHtml(task.name_fr)}</h3>
+            </div>
+            <p class="text-xs text-slate-500">${escapeHtml(task.name_en)}</p>
+          </div>
+          <div class="text-right text-xs text-slate-600">
+            <div>${escapeHtml(dur)}</div>
+            ${wc ? `<div class="mt-0.5">${escapeHtml(wc)}</div>` : ''}
+          </div>
+        </div>
+        <p class="mt-3 text-sm text-slate-700">${escapeHtml(task.objective)}</p>
+      </div>
+
+      <div class="px-5 py-4 space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Format</h4>
+            <p class="text-sm text-slate-700">${escapeHtml(task.format)}</p>
+          </div>
+          ${task.examiner_behavior ? `
+            <div>
+              <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Comportement examinateur</h4>
+              <p class="text-sm text-slate-700">${escapeHtml(task.examiner_behavior)}</p>
+            </div>
+          ` : ''}
+        </div>
+
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Structure attendue</h4>
+          ${numberedList(task.expected_structure)}
+        </div>
+
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Éléments requis</h4>
+          ${bulletList(task.required_elements)}
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-emerald-700 mb-2">Conseils stratégiques</h4>
+            ${bulletList(task.strategy_tips)}
+          </div>
+          <div>
+            <h4 class="text-xs font-semibold uppercase tracking-wide text-red-700 mb-2">Pièges fréquents</h4>
+            ${bulletList(task.common_pitfalls)}
+          </div>
+        </div>
+
+        <details class="border-t border-slate-100 pt-3">
+          <summary class="text-sm font-medium text-indigo-700 inline-flex items-center gap-2">
+            <span class="chevron">▸</span> Rubrique de notation détaillée
+          </summary>
+          <div class="mt-3">${renderTaskRubric(task)}</div>
+        </details>
+      </div>
+    </div>
+  `;
+}
+
+function renderTaskRubric(task) {
+  const dims = task.rubric_dimensions || [];
+  return `
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-slate-200 text-sm">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="text-left px-3 py-2 font-medium text-slate-700 border-b border-slate-200">Dimension</th>
+            <th class="text-left px-3 py-2 font-medium text-emerald-700 border-b border-slate-200">Cible B2</th>
+            <th class="text-left px-3 py-2 font-medium text-red-700 border-b border-slate-200">Sous le B2</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${dims.map(d => {
+            const dimDef = state.data.grading_dimensions.find(gd => gd.id === d);
+            const r = task.task_specific_rubric && task.task_specific_rubric[d];
+            return `
+              <tr class="align-top border-b border-slate-100 last:border-0">
+                <td class="px-3 py-2 font-medium text-slate-800">${escapeHtml(dimDef ? dimDef.name_fr : d)}<div class="text-xs text-slate-500 font-normal">${escapeHtml(dimDef ? dimDef.name_en : '')}</div></td>
+                <td class="px-3 py-2 text-slate-700">${r ? escapeHtml(r.B2_target) : '—'}</td>
+                <td class="px-3 py-2 text-slate-700">${r ? escapeHtml(r.common_below_B2) : '—'}</td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ---------- Overview tab ----------
+function renderOverviewTab() {
+  const m = state.data.metadata;
+  const sc = state.data.scoring;
+  const dims = state.data.grading_dimensions;
+  const desc = state.data.generic_level_descriptors;
+
+  const metaCard = `
+    <section class="bg-white border border-slate-200 rounded-lg p-5">
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Métadonnées de l'examen</h2>
+      <dl class="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        ${[
+          ['Examen', m.exam_full_name],
+          ['Organisme', m.issuing_organization],
+          ['Niveau cible', m.target_level],
+          ['Périmètre', m.scope],
+          ['Valable depuis', m.valid_from],
+          ['Naturalisation à partir de', m.naturalization_requirement_from],
+          ['Version', m.version],
+          ['Total questions', m.total_questions + ' (' + m.questions_per_task_type + ' par type)'],
+        ].map(([k, v]) => `
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-slate-500">${escapeHtml(k)}</dt>
+            <dd class="text-slate-800 mt-0.5">${escapeHtml(v)}</dd>
+          </div>
+        `).join('')}
+      </dl>
+    </section>
+  `;
+
+  // Scoring scale visual
+  const total = 20;
+  const bandsBar = sc.level_bands.map(b => {
+    const widthPct = ((b.score_max - b.score_min + 1) / (total + 1)) * 100;
+    return `<div class="flex-shrink-0 ${LEVEL_COLORS[b.level]} text-xs font-semibold py-2 text-center" style="width:${widthPct}%">${b.level}<div class="text-[10px] font-normal opacity-80">${b.score_min}–${b.score_max}</div></div>`;
+  }).join('');
+
+  const scoringCard = `
+    <section class="bg-white border border-slate-200 rounded-lg p-5">
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Notation</h2>
+      <p class="text-sm text-slate-700 mb-4">${escapeHtml(sc.evaluation_method)}</p>
+      <div class="mb-2 text-xs text-slate-500">Échelle 0 → 20 par section</div>
+      <div class="flex w-full rounded overflow-hidden border border-slate-200 mb-3">${bandsBar}</div>
+      <p class="text-sm text-slate-700"><strong>Score sécurisé conseillé :</strong> ${sc.target_safe_score}/20.</p>
+      <p class="text-xs text-slate-600 mt-1">${escapeHtml(sc.target_safe_score_rationale)}</p>
+      <h3 class="text-sm font-semibold text-red-700 mt-5 mb-2">Conditions d'échec automatique</h3>
+      ${bulletList(sc.automatic_failure_conditions)}
+      <h3 class="text-sm font-semibold text-slate-700 mt-5 mb-2">Agrégation pour application</h3>
+      <dl class="text-sm grid sm:grid-cols-2 gap-x-6 gap-y-2">
+        ${Object.entries(sc.scoring_aggregation_for_app).map(([k, v]) => `
+          <div>
+            <dt class="text-xs uppercase tracking-wide text-slate-500">${escapeHtml(k)}</dt>
+            <dd class="text-slate-700 mt-0.5">${Array.isArray(v) ? v.join(' – ') : escapeHtml(String(v))}</dd>
+          </div>
+        `).join('')}
+      </dl>
+    </section>
+  `;
+
+  const dimsCard = `
+    <section class="bg-white border border-slate-200 rounded-lg p-5">
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Dimensions de notation</h2>
+      <div class="space-y-3">
+        ${dims.map(d => `
+          <div class="border border-slate-200 rounded p-3">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="font-semibold text-slate-900">${escapeHtml(d.name_fr)}</h3>
+              <span class="text-xs text-slate-500">${escapeHtml(d.name_en)}</span>
+              ${(d.applies_to || []).map(a => badge(a === 'expression_orale' ? 'Oral' : 'Écrit',
+                a === 'expression_orale' ? 'bg-indigo-50 text-indigo-700' : 'bg-emerald-50 text-emerald-700')).join(' ')}
+            </div>
+            <p class="text-sm text-slate-700 mt-1">${escapeHtml(d.description)}</p>
+            ${d.weight_hint ? `<p class="text-xs text-amber-700 mt-1"><strong>Poids:</strong> ${escapeHtml(d.weight_hint)}</p>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+
+  const descCard = `
+    <section class="bg-white border border-slate-200 rounded-lg p-5">
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Descripteurs génériques par niveau</h2>
+      <p class="text-sm text-slate-600 mb-4">Repères pour classer une production sur chaque dimension. À combiner avec la rubrique spécifique de chaque tâche.</p>
+      <div class="space-y-4">
+        ${Object.entries(desc).map(([dimId, levels]) => {
+          const dimDef = dims.find(d => d.id === dimId);
+          return `
+            <details class="border border-slate-200 rounded">
+              <summary class="px-4 py-2 bg-slate-50 font-medium text-slate-800 flex items-center gap-2">
+                <span class="chevron">▸</span> ${escapeHtml(dimDef ? dimDef.name_fr : dimId)}
+              </summary>
+              <div class="p-3">
+                <table class="min-w-full text-sm">
+                  <tbody>
+                    ${Object.entries(levels).map(([lvl, txt]) => `
+                      <tr class="align-top border-b border-slate-100 last:border-0">
+                        <td class="py-2 pr-3 w-12"><span class="px-1.5 py-0.5 rounded text-xs font-semibold ${LEVEL_COLORS[lvl] || 'bg-slate-100 text-slate-700'}">${lvl}</span></td>
+                        <td class="py-2 text-slate-700">${escapeHtml(txt)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          `;
+        }).join('')}
+      </div>
+    </section>
+  `;
+
+  return `<div class="space-y-6">${metaCard}${scoringCard}${dimsCard}${descCard}</div>`;
+}
+
+// ---------- Event delegation for filter inputs ----------
+function attachEvents() {
+  const sec = document.getElementById('filter-section');
+  const tsk = document.getElementById('filter-task');
+  const search = document.getElementById('filter-search');
+  if (sec) sec.addEventListener('change', e => { state.filters.section = e.target.value; render(); });
+  if (tsk) tsk.addEventListener('change', e => { state.filters.taskNumber = e.target.value; render(); });
+  if (search) {
+    let timer;
+    search.addEventListener('input', e => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { state.filters.search = e.target.value; render(); }, 150);
+    });
+    // restore focus
+    if (state.filters.search) {
+      search.focus();
+      search.setSelectionRange(search.value.length, search.value.length);
+    }
+  }
+  document.querySelectorAll('.grader-btn').forEach(btn => {
+    btn.addEventListener('click', () => openGraderModal(btn.dataset.grader));
+  });
+}
+
+// ---------- Grader prompt modal ----------
+const graderState = { markdown: '', view: 'rendered', questionId: null };
+
+async function openGraderModal(questionId) {
+  const modal = document.getElementById('grader-modal');
+  const loading = document.getElementById('grader-loading');
+  const rendered = document.getElementById('grader-rendered');
+  const raw = document.getElementById('grader-raw');
+  const errEl = document.getElementById('grader-error');
+  const meta = document.getElementById('grader-meta');
+
+  graderState.questionId = questionId;
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  loading.classList.remove('hidden');
+  rendered.classList.add('hidden');
+  raw.classList.add('hidden');
+  errEl.classList.add('hidden');
+  meta.textContent = '';
+
+  const q = state.data.questions.find(x => x.id === questionId);
+  if (q) {
+    document.getElementById('grader-title').textContent =
+      `Prompt de notation — ${sectionFullName(q.section)}, Tâche ${q.task_number}`;
+    document.getElementById('grader-subtitle').textContent =
+      `${q.id} • ${q.task_type_fr}`;
+  }
+
+  try {
+    const res = await fetch(`/api/grader/${encodeURIComponent(questionId)}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    graderState.markdown = data.markdown || '';
+    rendered.innerHTML = marked.parse(graderState.markdown);
+    raw.textContent = graderState.markdown;
+    loading.classList.add('hidden');
+    setGraderView(graderState.view);
+    const wc = graderState.markdown.split(/\s+/).filter(Boolean).length;
+    const ch = graderState.markdown.length;
+    meta.textContent = `${wc.toLocaleString('fr-FR')} mots • ${ch.toLocaleString('fr-FR')} caractères`;
+  } catch (e) {
+    loading.classList.add('hidden');
+    errEl.textContent =
+      `Impossible de charger le prompt (${e.message}). Cette fonctionnalité requiert le serveur Flask : lance \`./.venv/bin/python app.py\` puis ouvre http://127.0.0.1:5000/.`;
+    errEl.classList.remove('hidden');
+  }
+}
+
+function setGraderView(view) {
+  graderState.view = view;
+  const rendered = document.getElementById('grader-rendered');
+  const raw = document.getElementById('grader-raw');
+  const renderedBtn = document.getElementById('grader-view-rendered');
+  const rawBtn = document.getElementById('grader-view-raw');
+  if (view === 'raw') {
+    rendered.classList.add('hidden');
+    raw.classList.remove('hidden');
+    rawBtn.classList.add('active');
+    renderedBtn.classList.remove('active');
+  } else {
+    rendered.classList.remove('hidden');
+    raw.classList.add('hidden');
+    renderedBtn.classList.add('active');
+    rawBtn.classList.remove('active');
+  }
+}
+
+function closeGraderModal() {
+  document.getElementById('grader-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.matches('[data-modal-close]')) closeGraderModal();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !document.getElementById('grader-modal').classList.contains('hidden')) {
+    closeGraderModal();
+  }
+});
+document.getElementById('grader-view-rendered').addEventListener('click', () => setGraderView('rendered'));
+document.getElementById('grader-view-raw').addEventListener('click', () => setGraderView('raw'));
+document.getElementById('grader-copy').addEventListener('click', async () => {
+  const btn = document.getElementById('grader-copy');
+  const original = btn.textContent;
+  try {
+    await navigator.clipboard.writeText(graderState.markdown);
+    btn.textContent = 'Copié ✓';
+  } catch (err) {
+    btn.textContent = 'Échec';
+  }
+  setTimeout(() => { btn.textContent = original; }, 1500);
+});
+
+// ---------- Go ----------
+tryAutoLoad();
+</script>
+</body>
+</html>

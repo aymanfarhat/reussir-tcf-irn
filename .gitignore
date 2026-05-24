@@ -1,18 +1,47 @@
-# Python-generated files
+# Python
 __pycache__/
 *.py[oc]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Python build artifacts
 build/
 dist/
 wheels/
-*.egg-info
+*.egg-info/
 
 # Virtual environments
-.venv
+.venv/
+backend/.venv/
+product_research/.venv/
 
 # Django local runtime files
-db.sqlite3
-*.sqlite3-journal
-media/
+backend/db.sqlite3
+backend/*.sqlite3-journal
+backend/media/
+backend/staticfiles/
 
-# Local configuration
+# Local configuration and secrets
 .env
+.env.*
+!.env.dev.example
+backend/.env
+frontend/.env
+
+# Node / Nuxt
+frontend/node_modules/
+frontend/.nuxt/
+frontend/.nuxt-build/
+frontend/.output/
+frontend/.nitro/
+frontend/.cache/
+frontend/dist/
+
+# Local inspiration / adjacent repos
+sample-fullstack-inspiration-architecture/
+simple-cli/
+
+# OS/editor noise
+.DS_Store
+produc_t_research/

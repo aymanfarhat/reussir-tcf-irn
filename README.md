@@ -1,56 +1,66 @@
-# TCF IRN App
+# TCF IRN Practice
 
-Django web app for helping students complete timed TCF IRN oral and written simulations, then receive structured grading feedback.
+Full-stack practice app for timed TCF IRN oral and written production simulations.
 
-## Development
+## Architecture
 
-Install or sync dependencies:
+- `frontend/`: Nuxt 3 + Vue 3 SSR frontend. Browser traffic goes through Nuxt.
+- `backend/`: Django 5.2 + DRF backend. Django owns data, grading, OpenAI calls, admin, and API behavior.
+- `product_research/`: source question bank and research prototype.
+- `docs/`: architecture, API, deployment, and business-rule documentation.
+
+Nuxt uses a BFF proxy: browser calls `/api/*` on the Nuxt server, and Nitro forwards to Django `/api/*` with session cookies and CSRF headers.
+
+## Local Development
+
+Create local env from the template:
 
 ```bash
+cp .env.dev.example .env.dev
+```
+
+Run the stack:
+
+```bash
+APP_ENV_FILE=.env.dev docker compose up -d --build
+APP_ENV_FILE=.env.dev docker compose exec web /opt/venv/bin/python manage.py migrate
+APP_ENV_FILE=.env.dev docker compose exec web /opt/venv/bin/python manage.py import_question_bank /product_research/question_bank.json
+```
+
+Useful URLs:
+
+- Frontend: http://127.0.0.1:3000
+- Backend API: http://localhost:8000/api/
+- API docs: http://localhost:8000/api/docs/
+- Django Admin: http://localhost:8000/admin/
+- Flower: `APP_ENV_FILE=.env.dev docker compose --profile monitoring up flower`
+
+`docker compose` defaults to `.env.dev.example` so config validation works in a fresh clone. Use `APP_ENV_FILE=.env.dev` whenever you want your local secrets and OpenAI key loaded into containers.
+
+## Direct Commands
+
+Backend:
+
+```bash
+cd backend
 uv sync
-```
-
-Optional local `.env`:
-
-```bash
-OPENAI_API_KEY=sk-...
-OPENAI_GRADING_MODEL=gpt-5.5
-OPENAI_IMPROVEMENT_MODEL=gpt-5.5
-OPENAI_AUDIO_GRADING_MODEL=gpt-audio
-OPENAI_TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
-OPENAI_TRANSCRIPTION_LANGUAGE=fr
-OPENAI_TTS_MODEL=gpt-4o-mini-tts
-OPENAI_TTS_VOICE=marin
-OPENAI_TTS_FORMAT=mp3
-OPENAI_TTS_INSTRUCTIONS=Speak clearly in French as a neutral TCF IRN examiner. Use a calm, natural pace.
-```
-
-Run database migrations:
-
-```bash
+uv run python manage.py check
+uv run python manage.py test
 uv run python manage.py migrate
 ```
 
-Import the question bank:
+Frontend:
 
 ```bash
-uv run python manage.py import_question_bank ../product_research/question_bank.json
+cd frontend
+npm install
+npm run dev
+npm run build
 ```
 
-Start the development server:
+## Runtime Notes
 
-```bash
-uv run python manage.py runserver
-```
-
-Run tests:
-
-```bash
-uv run python manage.py test
-```
-
-When `OPENAI_API_KEY` is not set, grading uses a local development stub so the end-to-end simulator remains testable. Set the key to use OpenAI for transcription, structured grading, improved response rewrites, oral question text-to-speech, and optional audio-aware oral delivery feedback.
-
-Oral question text-to-speech is generated lazily on first play and cached under `media/question_tts/`, which is ignored by git.
-
-The main dashboard starts full oral/written simulations. `/practice/` starts a single targeted task by task type and theme while reusing the same timed task pages, grading, reports, and history.
+- Postgres is the Docker/runtime database.
+- SQLite remains a fallback for direct local backend tests when `DATABASE_URL` is absent.
+- Redis and Celery are configured, but grading still runs synchronously for now.
+- Generated media, question TTS cache, node modules, virtualenvs, and local env files are ignored.

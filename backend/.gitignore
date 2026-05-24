@@ -1,0 +1,18 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Django local runtime files
+db.sqlite3
+*.sqlite3-journal
+media/
+
+# Local configuration
+.env

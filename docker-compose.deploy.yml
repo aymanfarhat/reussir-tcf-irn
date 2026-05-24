@@ -1,0 +1,66 @@
+# Deploy-shape override. Layer on top of docker-compose.yml:
+# docker compose -f docker-compose.yml -f docker-compose.deploy.yml up -d --build
+
+x-app-env-file: &app_env_file ${APP_ENV_FILE:-.env.dev.example}
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - backend_media:/srv/media:ro
+      - backend_static:/srv/static:ro
+    env_file:
+      - *app_env_file
+    depends_on:
+      - frontend
+      - web
+
+  frontend:
+    image: tcf-irn-frontend:deploy
+    build: ./frontend
+    ports: !reset []
+    volumes: !reset []
+    command: node .output/server/index.mjs
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+      - NODE_ENV=production
+      - NITRO_HOST=0.0.0.0
+      - NITRO_PORT=3000
+      - NUXT_TELEMETRY_DISABLED=1
+      - DJANGO_INTERNAL_BASE=http://web:8000
+      - DJANGO_PUBLIC_BASE=https://${DOMAIN_NAME:-localhost}
+    restart: unless-stopped
+
+  web:
+    ports: !reset []
+    restart: unless-stopped
+
+  celery_worker:
+    restart: unless-stopped
+
+  flower:
+    profiles:
+      - monitoring
+    ports: !reset []
+    restart: unless-stopped
+
+  db:
+    ports: !reset []
+    restart: unless-stopped
+
+  redis:
+    ports: !reset []
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
