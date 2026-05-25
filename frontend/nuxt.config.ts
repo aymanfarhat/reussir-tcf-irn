@@ -2,6 +2,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-05-24',
   buildDir: process.env.NUXT_BUILD_DIR || '.nuxt',
   devtools: { enabled: true },
+  modules: ['@nuxtjs/i18n'],
   css: ['~/assets/css/base.css'],
   postcss: {
     plugins: {
@@ -22,6 +23,16 @@ export default defineNuxtConfig({
     public: {
       djangoPublicBase: process.env.DJANGO_PUBLIC_BASE || 'http://localhost:8000',
     },
+  },
+  i18n: {
+    defaultLocale: 'fr',
+    strategy: 'no_prefix',
+    detectBrowserLanguage: false,
+    langDir: 'locales',
+    locales: [
+      { code: 'fr', name: 'Français', language: 'fr-FR', file: 'fr.json' },
+      { code: 'en', name: 'English', language: 'en-US', file: 'en.json' },
+    ],
   },
   experimental: {
     appManifest: false,

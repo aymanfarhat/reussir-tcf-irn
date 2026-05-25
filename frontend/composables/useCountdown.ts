@@ -1,4 +1,5 @@
 export function useCountdown(deadline: Ref<string | null | undefined> | string | null | undefined) {
+  const { t } = useI18n()
   const now = ref(Date.now())
   let interval: ReturnType<typeof setInterval> | null = null
   const deadlineRef = isRef(deadline) ? deadline : ref(deadline)
@@ -10,7 +11,7 @@ export function useCountdown(deadline: Ref<string | null | undefined> | string |
   const expired = computed(() => remainingMs.value <= 0)
   const timeLabel = computed(() => {
     if (!deadlineRef.value) return '--:--'
-    if (expired.value) return 'Time expired'
+    if (expired.value) return t('timer.expired')
     const minutes = Math.floor(remainingMs.value / 60000)
     const seconds = Math.floor((remainingMs.value % 60000) / 1000)
     return `${minutes}:${seconds.toString().padStart(2, '0')}`

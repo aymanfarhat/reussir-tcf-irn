@@ -2,7 +2,7 @@
   <div v-if="flash" class="mb-6 flex items-start justify-between gap-3 rounded-md border px-4 py-3 text-sm" :class="classes">
     <span>{{ flash.text }}</span>
     <button type="button" class="text-xs font-semibold uppercase tracking-wider opacity-70 hover:opacity-100" @click="clear">
-      Dismiss
+      {{ $t('common.dismiss') }}
     </button>
   </div>
 </template>

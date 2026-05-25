@@ -1,0 +1,209 @@
+{
+  "app": {
+    "name": "TCF IRN Practice",
+    "tagline": "Simulations chronométrées pour la production orale et écrite"
+  },
+  "nav": {
+    "menu": "Menu",
+    "practice": "Pratique",
+    "history": "Historique",
+    "settings": "Paramètres",
+    "admin": "Administration",
+    "logout": "Se déconnecter",
+    "login": "Connexion",
+    "signup": "Inscription"
+  },
+  "common": {
+    "audio": "Audio",
+    "continue": "Continuer",
+    "dashboard": "Tableau de bord",
+    "delete": "Supprimer",
+    "dismiss": "Fermer",
+    "dimension": "Dimension",
+    "examiner": "Examinateur",
+    "level": "Niveau",
+    "oral": "Oral",
+    "register": "Registre",
+    "result": "Résultat",
+    "score": "Score",
+    "start": "Commencer",
+    "status": "Statut",
+    "task": "Tâche",
+    "taskNumber": "Tâche {number}",
+    "time": "Temps",
+    "written": "Écrit",
+    "words": "Mots"
+  },
+  "auth": {
+    "createAccount": "Créer un compte",
+    "creatingAccount": "Création du compte...",
+    "login": "Se connecter",
+    "loggingIn": "Connexion...",
+    "loginFailed": "Connexion impossible.",
+    "noAccount": "Pas encore de compte ?",
+    "password": "Mot de passe",
+    "passwordConfirmation": "Confirmation du mot de passe",
+    "signupFailed": "Inscription impossible.",
+    "username": "Nom d'utilisateur"
+  },
+  "dashboard": {
+    "emptyDefinitions": "Aucune définition de test trouvée. Lancez la commande d'import de la banque de questions.",
+    "emptySessions": "Aucune session pour le moment.",
+    "recentSessions": "Sessions récentes",
+    "startFailed": "Impossible de démarrer cette simulation.",
+    "subtitle": "Lancez une simulation chronométrée et avancez tâche par tâche dans la séquence TCF IRN.",
+    "targetedPractice": "Pratique ciblée sur une seule tâche",
+    "title": "Tableau de bord d'entraînement"
+  },
+  "practice": {
+    "anyTask": "Toutes les tâches",
+    "anyTheme": "Tous les thèmes",
+    "startButton": "Démarrer la tâche",
+    "startFailed": "Impossible de démarrer la pratique.",
+    "starting": "Démarrage...",
+    "subtitle": "Démarrez une tâche chronométrée par type, par thème ou les deux. Le feedback est enregistré dans votre historique.",
+    "taskType": "Type de tâche",
+    "theme": "Thème",
+    "title": "Pratique ciblée"
+  },
+  "history": {
+    "confirmDelete": "Supprimer cet élément de l'historique ? Cette action est irréversible.",
+    "deleted": "Élément d'historique supprimé.",
+    "empty": "Aucune session pour le moment.",
+    "fullReport": "Rapport complet",
+    "subtitle": "Revoyez vos simulations précédentes, vos feedbacks par tâche et vos rapports.",
+    "taskFeedback": "Feedback de la tâche",
+    "title": "Historique des tests"
+  },
+  "report": {
+    "covered": "Éléments couverts",
+    "finalReport": "Rapport final",
+    "missing": "Éléments manquants",
+    "subtitle": "Les scores sont des estimations d'entraînement. La formule officielle d'agrégation du TCF IRN n'est pas publique.",
+    "viewTaskFeedback": "Voir le feedback détaillé"
+  },
+  "taskPage": {
+    "boundaries": "Contraintes de la tâche",
+    "expectedStructure": "Structure attendue",
+    "manualTranscriptFallback": "Transcription manuelle de secours",
+    "manualTranscriptPlaceholder": "Si l'enregistrement ou la transcription est indisponible, saisissez ici la transcription de votre réponse orale...",
+    "recordingNote": "Les enregistrements du navigateur sont transcrits pour la notation. Le feedback audio direct est disponible uniquement pour les fichiers wav/mp3.",
+    "submit": "Envoyer la tâche",
+    "submitting": "Envoi...",
+    "submitFailed": "Impossible d'envoyer cette tâche.",
+    "writePlaceholder": "Rédigez votre réponse en français..."
+  },
+  "gradePage": {
+    "finalReport": "Voir le rapport final",
+    "nextStep": "Étape suivante",
+    "noPersonalBest": "Aucune tentative précédente notée pour ce même sujet.",
+    "personalBest": "Meilleur score sur ce sujet",
+    "regrade": "Renoter la réponse",
+    "regradeFailed": "La renotation a échoué.",
+    "regrading": "Renotation...",
+    "retryGrade": "Relancer la notation",
+    "reviewAttempt": "Revoir cette tentative",
+    "continueToTask": "Continuer vers la tâche {number}"
+  },
+  "feedback": {
+    "audioDelivery": "Prestation orale",
+    "audioEvidenceUsed": "Audio utilisé comme preuve",
+    "fluency": "Fluidité",
+    "improveNext": "À améliorer",
+    "justification": "Justification",
+    "noCandidate": "Aucune production candidate enregistrée.",
+    "pronunciation": "Prononciation",
+    "strengths": "Points forts",
+    "transcriptOnly": "Limite : transcription seulement",
+    "yourResponse": "Votre réponse"
+  },
+  "examples": {
+    "subtitle": "Pour étudier, pas pour mémoriser",
+    "title": "Exemples de réponses B2"
+  },
+  "improved": {
+    "failed": "La génération de la version améliorée a échoué : {message}",
+    "nextFocus": "Prochain point à travailler",
+    "reusablePhrases": "Expressions réutilisables",
+    "subtitle": "Basée sur votre propre réponse",
+    "title": "Version améliorée de votre réponse",
+    "whatChanged": "Ce qui a changé"
+  },
+  "audioRecorder": {
+    "start": "Démarrer l'enregistrement",
+    "stop": "Arrêter",
+    "rerecord": "Réenregistrer",
+    "status": {
+      "ready": "Enregistreur prêt. Vous pouvez aussi saisir une transcription manuelle.",
+      "unsupported": "L'enregistrement n'est pas pris en charge dans ce navigateur. Utilisez la transcription manuelle.",
+      "attached": "Enregistrement joint. Envoyez quand vous êtes prêt.",
+      "recording": "Enregistrement...",
+      "cleared": "Enregistrement supprimé. Recommencez ou saisissez une transcription manuelle."
+    }
+  },
+  "questionAudio": {
+    "default": "Audio d'examinateur généré par IA.",
+    "loading": "Chargement de l'audio...",
+    "loadingStatus": "Chargement de l'audio de la question...",
+    "play": "Écouter la question",
+    "playing": "Lecture de l'audio de la question.",
+    "unavailable": "L'audio de la question est indisponible pour le moment."
+  },
+  "timer": {
+    "expired": "Temps écoulé"
+  },
+  "wordCounter": {
+    "label": "{count} mots. Attendu : {min}-{max}."
+  },
+  "settings": {
+    "current": "Langue actuelle",
+    "english": "English",
+    "french": "Français",
+    "language": "Langue de l'interface",
+    "saved": "Préférence de langue enregistrée.",
+    "subtitle": "Choisissez la langue des menus, boutons et libellés de l'interface. Le contenu des exercices reste inchangé.",
+    "title": "Paramètres"
+  },
+  "scoreTiers": {
+    "strong": "Solide",
+    "ready": "Prêt",
+    "developing": "En progression",
+    "needsWork": "À travailler"
+  },
+  "statuses": {
+    "pending": "En attente",
+    "started": "Commencée",
+    "submitted": "Envoyée",
+    "graded": "Notée",
+    "grading_failed": "Notation échouée",
+    "in_progress": "En cours",
+    "completed": "Terminée",
+    "abandoned": "Abandonnée"
+  },
+  "gradeStatuses": {
+    "pending": "En attente",
+    "running": "En cours",
+    "succeeded": "Réussie",
+    "failed": "Échouée"
+  },
+  "modes": {
+    "full": "Complet",
+    "oral": "Oral",
+    "written": "Écrit",
+    "practice": "Pratique"
+  },
+  "uiKit": {
+    "badges": "Badges",
+    "buttons": "Boutons",
+    "defaultBadge": "Défaut",
+    "delete": "Supprimer",
+    "error": "Erreur",
+    "primary": "Action principale",
+    "scoreRings": "Anneaux de score",
+    "secondary": "Action secondaire",
+    "subtitle": "Composants, jetons et traitements de score TCF IRN.",
+    "success": "Succès",
+    "title": "Kit UI",
+    "warning": "Avertissement"
+  }
+}

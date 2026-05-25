@@ -1,33 +1,36 @@
 <template>
   <div class="mt-4 flex flex-wrap items-center gap-3">
     <UiButton type="button" variant="ghost" :disabled="loading" @click="play">
-      {{ loading ? 'Loading audio...' : 'Play question' }}
+      {{ loading ? $t('questionAudio.loading') : $t('questionAudio.play') }}
     </UiButton>
     <span class="text-xs text-indigo-900">{{ status }}</span>
-    <audio ref="audioRef" preload="none" :src="src" @ended="status = defaultStatus" @error="onError" />
+    <audio ref="audioRef" preload="none" :src="src" @ended="statusKey = 'default'" @error="onError" />
   </div>
 </template>
 
 <script setup lang="ts">
 defineProps<{ src: string }>()
-const defaultStatus = 'AI-generated examiner audio.'
-const status = ref(defaultStatus)
+type QuestionAudioStatus = 'default' | 'loadingStatus' | 'playing' | 'unavailable'
+
+const { t } = useI18n()
+const statusKey = ref<QuestionAudioStatus>('default')
+const status = computed(() => t(`questionAudio.${statusKey.value}`))
 const loading = ref(false)
 const audioRef = ref<HTMLAudioElement | null>(null)
 
 async function play() {
   if (!audioRef.value) {
-    status.value = 'Question audio is unavailable right now.'
+    statusKey.value = 'unavailable'
     return
   }
   loading.value = true
-  status.value = 'Loading question audio...'
+  statusKey.value = 'loadingStatus'
   try {
     audioRef.value.currentTime = 0
     await audioRef.value.play()
-    status.value = 'Playing question audio.'
+    statusKey.value = 'playing'
   } catch {
-    status.value = 'Question audio is unavailable right now.'
+    statusKey.value = 'unavailable'
   } finally {
     loading.value = false
   }
@@ -35,6 +38,6 @@ async function play() {
 
 function onError() {
   loading.value = false
-  status.value = 'Question audio is unavailable right now.'
+  statusKey.value = 'unavailable'
 }
 </script>

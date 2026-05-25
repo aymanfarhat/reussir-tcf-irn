@@ -1,0 +1,209 @@
+{
+  "app": {
+    "name": "TCF IRN Practice",
+    "tagline": "Timed simulations for oral and written production"
+  },
+  "nav": {
+    "menu": "Menu",
+    "practice": "Practice",
+    "history": "History",
+    "settings": "Settings",
+    "admin": "Admin",
+    "logout": "Log out",
+    "login": "Log in",
+    "signup": "Sign up"
+  },
+  "common": {
+    "audio": "Audio",
+    "continue": "Continue",
+    "dashboard": "Dashboard",
+    "delete": "Delete",
+    "dismiss": "Dismiss",
+    "dimension": "Dimension",
+    "examiner": "Examiner",
+    "level": "Level",
+    "oral": "Oral",
+    "register": "Register",
+    "result": "Result",
+    "score": "Score",
+    "start": "Start",
+    "status": "Status",
+    "task": "Task",
+    "taskNumber": "Task {number}",
+    "time": "Time",
+    "written": "Written",
+    "words": "Words"
+  },
+  "auth": {
+    "createAccount": "Create account",
+    "creatingAccount": "Creating account...",
+    "login": "Log in",
+    "loggingIn": "Logging in...",
+    "loginFailed": "Login failed.",
+    "noAccount": "No account yet?",
+    "password": "Password",
+    "passwordConfirmation": "Password confirmation",
+    "signupFailed": "Signup failed.",
+    "username": "Username"
+  },
+  "dashboard": {
+    "emptyDefinitions": "No test definitions found. Run the question-bank import command.",
+    "emptySessions": "No sessions yet.",
+    "recentSessions": "Recent sessions",
+    "startFailed": "Could not start this simulation.",
+    "subtitle": "Start a timed simulation and move through the TCF IRN sequence task by task.",
+    "targetedPractice": "Targeted single-task practice",
+    "title": "Practice dashboard"
+  },
+  "practice": {
+    "anyTask": "Any task",
+    "anyTheme": "Any theme",
+    "startButton": "Start practice task",
+    "startFailed": "Could not start practice.",
+    "starting": "Starting...",
+    "subtitle": "Start one timed task by type, theme, or both. Feedback is saved in your history.",
+    "taskType": "Task type",
+    "theme": "Theme",
+    "title": "Targeted practice"
+  },
+  "history": {
+    "confirmDelete": "Delete this history item? This cannot be undone.",
+    "deleted": "History item deleted.",
+    "empty": "No sessions yet.",
+    "fullReport": "Full report",
+    "subtitle": "Review previous simulations, task feedback, and reports.",
+    "taskFeedback": "Task feedback",
+    "title": "Test history"
+  },
+  "report": {
+    "covered": "Covered",
+    "finalReport": "Final report",
+    "missing": "Missing",
+    "subtitle": "Scores are practice estimates. The official TCF IRN aggregation formula is not public.",
+    "viewTaskFeedback": "View task feedback"
+  },
+  "taskPage": {
+    "boundaries": "Task boundaries",
+    "expectedStructure": "Expected structure",
+    "manualTranscriptFallback": "Manual transcript fallback",
+    "manualTranscriptPlaceholder": "If recording or transcription is unavailable, type your oral answer transcript here...",
+    "recordingNote": "Browser recordings are transcribed for grading. Direct audio delivery feedback is available only for wav/mp3 uploads.",
+    "submit": "Submit task",
+    "submitting": "Submitting...",
+    "submitFailed": "Could not submit this task.",
+    "writePlaceholder": "Write your answer in French..."
+  },
+  "gradePage": {
+    "finalReport": "View final report",
+    "nextStep": "Next step",
+    "noPersonalBest": "No earlier graded attempt for this exact prompt.",
+    "personalBest": "Same prompt best",
+    "regrade": "Regrade answer",
+    "regradeFailed": "Regrade failed.",
+    "regrading": "Regrading...",
+    "retryGrade": "Retry grading",
+    "reviewAttempt": "Review that attempt",
+    "continueToTask": "Continue to task {number}"
+  },
+  "feedback": {
+    "audioDelivery": "Audio delivery",
+    "audioEvidenceUsed": "Audio evidence used",
+    "fluency": "Fluency",
+    "improveNext": "Improve next",
+    "justification": "Justification",
+    "noCandidate": "No candidate production saved.",
+    "pronunciation": "Pronunciation",
+    "strengths": "Strengths",
+    "transcriptOnly": "Transcript-only limitation",
+    "yourResponse": "Your response"
+  },
+  "examples": {
+    "subtitle": "For study, not memorization",
+    "title": "Example B2 responses"
+  },
+  "improved": {
+    "failed": "Improved response generation failed: {message}",
+    "nextFocus": "Next focus",
+    "reusablePhrases": "Reusable phrases",
+    "subtitle": "Based on your own answer",
+    "title": "Improved version of your response",
+    "whatChanged": "What changed"
+  },
+  "audioRecorder": {
+    "start": "Start recording",
+    "stop": "Stop",
+    "rerecord": "Re-record",
+    "status": {
+      "ready": "Recorder ready. You can also type a manual transcript.",
+      "unsupported": "Recording is not supported in this browser. Use the manual transcript.",
+      "attached": "Recording attached. Submit when ready.",
+      "recording": "Recording...",
+      "cleared": "Recording cleared. Start again or type a manual transcript."
+    }
+  },
+  "questionAudio": {
+    "default": "AI-generated examiner audio.",
+    "loading": "Loading audio...",
+    "loadingStatus": "Loading question audio...",
+    "play": "Play question",
+    "playing": "Playing question audio.",
+    "unavailable": "Question audio is unavailable right now."
+  },
+  "timer": {
+    "expired": "Time expired"
+  },
+  "wordCounter": {
+    "label": "{count} words. Expected {min}-{max}."
+  },
+  "settings": {
+    "current": "Current language",
+    "english": "English",
+    "french": "Français",
+    "language": "Interface language",
+    "saved": "Language preference saved.",
+    "subtitle": "Choose the language for menus, buttons, and interface labels. Exercise content stays unchanged.",
+    "title": "Settings"
+  },
+  "scoreTiers": {
+    "strong": "Strong",
+    "ready": "Ready",
+    "developing": "Developing",
+    "needsWork": "Needs work"
+  },
+  "statuses": {
+    "pending": "Pending",
+    "started": "Started",
+    "submitted": "Submitted",
+    "graded": "Graded",
+    "grading_failed": "Grading failed",
+    "in_progress": "In progress",
+    "completed": "Completed",
+    "abandoned": "Abandoned"
+  },
+  "gradeStatuses": {
+    "pending": "Pending",
+    "running": "Running",
+    "succeeded": "Succeeded",
+    "failed": "Failed"
+  },
+  "modes": {
+    "full": "Full",
+    "oral": "Oral",
+    "written": "Written",
+    "practice": "Practice"
+  },
+  "uiKit": {
+    "badges": "Badges",
+    "buttons": "Buttons",
+    "defaultBadge": "Default",
+    "delete": "Delete",
+    "error": "Error",
+    "primary": "Primary action",
+    "scoreRings": "Score rings",
+    "secondary": "Secondary action",
+    "subtitle": "TCF IRN components, tokens, and score treatments.",
+    "success": "Success",
+    "title": "UI Kit",
+    "warning": "Warning"
+  }
+}

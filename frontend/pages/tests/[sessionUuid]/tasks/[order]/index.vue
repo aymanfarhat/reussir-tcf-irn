@@ -6,7 +6,7 @@
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
             <UiBadge :tone="attempt.isWritten ? 'written' : 'oral'">
-              {{ attempt.isWritten ? 'Written' : 'Oral' }} task {{ attempt.question.taskNumber }}
+              {{ attempt.isWritten ? $t('common.written') : $t('common.oral') }} - {{ $t('common.taskNumber', { number: attempt.question.taskNumber }) }}
             </UiBadge>
             <h1 class="mt-3 text-xl font-bold text-slate-950">{{ attempt.question.taskTypeFr }}</h1>
           </div>
@@ -19,10 +19,10 @@
         </div>
 
         <template v-if="attempt.isWritten">
-          <UiTextarea v-model="answerText" class="mt-5 min-h-80" placeholder="Write your answer in French..." />
+          <UiTextarea v-model="answerText" class="mt-5 min-h-80" :placeholder="$t('taskPage.writePlaceholder')" />
           <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
             <WordCounter :text="answerText" :min-words="attempt.question.taskDefinition.wordCountMin" :max-words="attempt.question.taskDefinition.wordCountMax" />
-            <UiButton type="submit" :disabled="pending">{{ pending ? 'Submitting...' : 'Submit task' }}</UiButton>
+            <UiButton type="submit" :disabled="pending">{{ pending ? $t('taskPage.submitting') : $t('taskPage.submit') }}</UiButton>
           </div>
         </template>
 
@@ -30,38 +30,38 @@
           <div class="mt-6">
             <AudioRecorder @recorded="recordedFile = $event" />
           </div>
-          <UiTextarea v-model="transcriptText" class="mt-5" label="Manual transcript fallback" placeholder="If recording or transcription is unavailable, type your oral answer transcript here..." />
+          <UiTextarea v-model="transcriptText" class="mt-5" :label="$t('taskPage.manualTranscriptFallback')" :placeholder="$t('taskPage.manualTranscriptPlaceholder')" />
           <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <p class="text-sm text-slate-500">Browser recordings are transcribed for grading. Direct audio delivery feedback is available only for wav/mp3 uploads.</p>
-            <UiButton type="submit" :disabled="pending">{{ pending ? 'Submitting...' : 'Submit task' }}</UiButton>
+            <p class="text-sm text-slate-500">{{ $t('taskPage.recordingNote') }}</p>
+            <UiButton type="submit" :disabled="pending">{{ pending ? $t('taskPage.submitting') : $t('taskPage.submit') }}</UiButton>
           </div>
         </template>
       </section>
 
       <aside class="space-y-4">
         <UiCard>
-          <h2 class="font-semibold text-slate-950">Task boundaries</h2>
+          <h2 class="font-semibold text-slate-950">{{ $t('taskPage.boundaries') }}</h2>
           <dl class="mt-3 space-y-2 text-sm text-slate-600">
             <div class="flex justify-between">
-              <dt>Time</dt>
+              <dt>{{ $t('common.time') }}</dt>
               <dd>{{ attempt.question.taskDefinition.durationMinutes || attempt.question.taskDefinition.suggestedDurationMinutes }} min</dd>
             </div>
             <div v-if="attempt.isWritten" class="flex justify-between">
-              <dt>Words</dt>
+              <dt>{{ $t('common.words') }}</dt>
               <dd>{{ attempt.question.taskDefinition.wordCountMin }}-{{ attempt.question.taskDefinition.wordCountMax }}</dd>
             </div>
             <div v-if="attempt.question.register" class="flex justify-between gap-4">
-              <dt>Register</dt>
+              <dt>{{ $t('common.register') }}</dt>
               <dd class="text-right">{{ attempt.question.register }}</dd>
             </div>
             <div v-if="attempt.question.examinerRoleFr" class="flex justify-between gap-4">
-              <dt>Examiner</dt>
+              <dt>{{ $t('common.examiner') }}</dt>
               <dd class="text-right">{{ attempt.question.examinerRoleFr }}</dd>
             </div>
           </dl>
         </UiCard>
         <UiCard>
-          <h2 class="font-semibold text-slate-950">Expected structure</h2>
+          <h2 class="font-semibold text-slate-950">{{ $t('taskPage.expectedStructure') }}</h2>
           <ol class="mt-3 list-decimal space-y-1 pl-5 text-sm text-slate-600">
             <li v-for="item in attempt.question.expectedResponse.structure || []" :key="item">{{ item }}</li>
           </ol>
@@ -79,6 +79,7 @@ definePageMeta({ requires: 'auth' })
 const route = useRoute()
 const api = useApi()
 const { show } = useFlash()
+const { t } = useI18n()
 const sessionUuid = computed(() => String(route.params.sessionUuid))
 const order = computed(() => Number(route.params.order))
 
@@ -118,7 +119,7 @@ async function submit() {
     }
     await navigateTo(`/tests/${sessionUuid.value}/tasks/${order.value}/grade`)
   } catch (err: any) {
-    show(err?.data?.detail || 'Could not submit this task.', 'error')
+    show(err?.data?.detail || t('taskPage.submitFailed'), 'error')
   } finally {
     pending.value = false
   }

@@ -1,6 +1,6 @@
 <template>
   <p class="text-sm" :class="wordClass(minWords, maxWords)">
-    {{ wordCount }} words. Expected {{ minWords }}-{{ maxWords }}.
+    {{ $t('wordCounter.label', { count: wordCount, min: minWords, max: maxWords }) }}
   </p>
 </template>
 

@@ -1,15 +1,19 @@
 export function useAudioRecorder() {
+  type RecorderStatus = 'ready' | 'unsupported' | 'attached' | 'recording' | 'cleared'
+
+  const { t } = useI18n()
   const mediaRecorder = shallowRef<MediaRecorder | null>(null)
   const recording = ref(false)
   const audioBlob = shallowRef<Blob | null>(null)
   const audioUrl = ref('')
-  const status = ref('Recorder ready. You can also type a manual transcript.')
+  const statusKey = ref<RecorderStatus>('ready')
+  const status = computed(() => t(`audioRecorder.status.${statusKey.value}`))
   let chunks: BlobPart[] = []
   let stream: MediaStream | null = null
 
   async function start() {
     if (!navigator.mediaDevices || !window.MediaRecorder) {
-      status.value = 'Recording is not supported in this browser. Use the manual transcript.'
+      statusKey.value = 'unsupported'
       return
     }
     stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -20,11 +24,11 @@ export function useAudioRecorder() {
       audioBlob.value = new Blob(chunks, { type: 'audio/webm' })
       audioUrl.value = URL.createObjectURL(audioBlob.value)
       stream?.getTracks().forEach((track) => track.stop())
-      status.value = 'Recording attached. Submit when ready.'
+      statusKey.value = 'attached'
     }
     mediaRecorder.value.start()
     recording.value = true
-    status.value = 'Recording...'
+    statusKey.value = 'recording'
   }
 
   function stop() {
@@ -38,7 +42,7 @@ export function useAudioRecorder() {
     chunks = []
     audioBlob.value = null
     audioUrl.value = ''
-    status.value = 'Recording cleared. Start again or type a manual transcript.'
+    statusKey.value = 'cleared'
   }
 
   function file(): File | null {

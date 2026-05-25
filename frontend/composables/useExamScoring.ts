@@ -1,6 +1,8 @@
 const CIRCUMFERENCE = 2 * Math.PI * 26
 
 export function useExamScoring() {
+  const { t } = useI18n()
+
   function scorePercent(score: number | null | undefined): number {
     if (score === null || score === undefined) return 0
     return Math.max(0, Math.min(100, (Number(score) / 20) * 100))
@@ -21,10 +23,10 @@ export function useExamScoring() {
 
   function tierLabel(score: number | null | undefined): string {
     const value = Number(score ?? 0)
-    if (value >= 16) return 'Strong'
-    if (value >= 12) return 'Ready'
-    if (value >= 8) return 'Developing'
-    return 'Needs work'
+    if (value >= 16) return t('scoreTiers.strong')
+    if (value >= 12) return t('scoreTiers.ready')
+    if (value >= 8) return t('scoreTiers.developing')
+    return t('scoreTiers.needsWork')
   }
 
   return { CIRCUMFERENCE, arcDash, tierColor, tierLabel, scorePercent }
