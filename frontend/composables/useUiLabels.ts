@@ -14,6 +14,7 @@ export function useUiLabels() {
     if (Number.isNaN(date.getTime())) return value
     return new Intl.DateTimeFormat(locale.value === 'fr' ? 'fr-FR' : 'en-US', {
       dateStyle: 'medium',
+      timeZone: 'Europe/Paris',
       timeStyle: 'short',
     }).format(date)
   }
@@ -34,5 +35,15 @@ export function useUiLabels() {
     return t('common.taskNumber', { number: taskNumber ?? '-' })
   }
 
-  return { enumLabel, formatDateTime, gradeStatusLabel, modeLabel, statusLabel, taskLabel }
+  function testDefinitionDescription(value?: { mode?: string | null; description?: string | null } | null): string {
+    const key = `testDefinitions.${value?.mode}.description`
+    return value?.mode && te(key) ? t(key) : value?.description || ''
+  }
+
+  function testDefinitionName(value?: { mode?: string | null; name?: string | null } | null): string {
+    const key = `testDefinitions.${value?.mode}.name`
+    return value?.mode && te(key) ? t(key) : value?.name || ''
+  }
+
+  return { enumLabel, formatDateTime, gradeStatusLabel, modeLabel, statusLabel, taskLabel, testDefinitionDescription, testDefinitionName }
 }

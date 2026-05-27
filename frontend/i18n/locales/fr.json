@@ -47,13 +47,31 @@
     "username": "Nom d'utilisateur"
   },
   "dashboard": {
+    "defaultLearner": "votre entraînement",
+    "eyebrow": "Tableau de bord",
     "emptyDefinitions": "Aucune définition de test trouvée. Lancez la commande d'import de la banque de questions.",
     "emptySessions": "Aucune session pour le moment.",
+    "latestSubtitle": "Un aperçu rapide de vos dernières simulations, avec uniquement les indicateurs utiles.",
+    "latestTitle": "Derniers entraînements",
+    "practiceCta": "Choisir une tâche précise",
+    "quickStartSubtitle": "Démarrez une séquence complète ou une section précise avec les mêmes règles de temps.",
+    "quickStartTitle": "Démarrage rapide",
     "recentSessions": "Sessions récentes",
     "startFailed": "Impossible de démarrer cette simulation.",
-    "subtitle": "Lancez une simulation chronométrée et avancez tâche par tâche dans la séquence TCF IRN.",
+    "startFull": "Simulation complète",
+    "startOral": "Section orale",
+    "startWritten": "Section écrite",
+    "stats": {
+      "average": "Moyenne",
+      "best": "Meilleur score",
+      "completed": "Terminées",
+      "sessions": "Sessions",
+      "tasks": "Tâches faites"
+    },
+    "subtitle": "Suivez vos simulations, vos scores et vos prochains entraînements depuis un seul espace.",
     "targetedPractice": "Pratique ciblée sur une seule tâche",
-    "title": "Tableau de bord d'entraînement"
+    "title": "Bonjour, {name}",
+    "viewAllHistory": "Voir tout l'historique"
   },
   "practice": {
     "anyTask": "Toutes les tâches",
@@ -70,16 +88,41 @@
     "confirmDelete": "Supprimer cet élément de l'historique ? Cette action est irréversible.",
     "deleted": "Élément d'historique supprimé.",
     "empty": "Aucune session pour le moment.",
+    "eyebrow": "Historique",
     "fullReport": "Rapport complet",
+    "pagination": {
+      "next": "Suivant",
+      "page": "Page {page}/{total}",
+      "previous": "Précédent",
+      "range": "{start}-{end} sur {total} sessions"
+    },
     "subtitle": "Revoyez vos simulations précédentes, vos feedbacks par tâche et vos rapports.",
+    "summary": {
+      "average": "Moyenne",
+      "gradedTasks": "Tâches notées",
+      "mixedSections": "Mixte",
+      "noScore": "Pas encore noté",
+      "oralCount": "{count} orale(s)",
+      "pendingSummary": "Les détails seront disponibles après notation des tâches envoyées.",
+      "scoredSummary": "{graded} tâche(s) notée(s), moyenne {average}.",
+      "sections": "Section",
+      "tasks": "Tâches",
+      "tasksDone": "{completed}/{total} tâche(s) terminée(s)",
+      "writtenCount": "{count} écrite(s)"
+    },
     "taskFeedback": "Feedback de la tâche",
-    "title": "Historique des tests"
+    "title": "Historique des tests",
+    "viewExam": "Voir l'examen"
   },
   "report": {
     "covered": "Éléments couverts",
+    "examDetail": "Détail de l'examen",
+    "eyebrow": "Session",
     "finalReport": "Rapport final",
     "missing": "Éléments manquants",
     "subtitle": "Les scores sont des estimations d'entraînement. La formule officielle d'agrégation du TCF IRN n'est pas publique.",
+    "taskListSubtitle": "Chaque tâche renvoie vers son feedback complet, ses exemples et sa version améliorée.",
+    "taskListTitle": "Tâches de la session",
     "viewTaskFeedback": "Voir le feedback détaillé"
   },
   "taskPage": {
@@ -191,6 +234,20 @@
     "oral": "Oral",
     "written": "Écrit",
     "practice": "Pratique"
+  },
+  "testDefinitions": {
+    "full": {
+      "description": "Tâches orales 1 à 3, puis tâches écrites 4 à 6.",
+      "name": "Simulation complète TCF IRN"
+    },
+    "oral": {
+      "description": "Entraînement chronométré sur les tâches orales 1 à 3.",
+      "name": "Section orale"
+    },
+    "written": {
+      "description": "Entraînement chronométré sur les tâches écrites 4 à 6.",
+      "name": "Section écrite"
+    }
   },
   "uiKit": {
     "badges": "Badges",

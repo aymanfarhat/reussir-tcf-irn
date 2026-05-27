@@ -2,7 +2,8 @@
   <div v-if="session">
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-slate-950">{{ $t('report.finalReport') }}</h1>
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">{{ $t('report.eyebrow') }}</p>
+        <h1 class="mt-2 text-2xl font-bold text-slate-950">{{ $t('report.examDetail') }}</h1>
         <p class="mt-1 text-sm text-slate-500">{{ $t('report.subtitle') }}</p>
       </div>
       <UiButton to="/" variant="ghost">{{ $t('common.dashboard') }}</UiButton>
@@ -17,6 +18,11 @@
         <div class="text-sm font-medium text-emerald-800">{{ $t('common.written') }}</div>
         <div class="mt-3"><ScoreRing :score="session.writtenScore" :level="session.writtenLevel" /></div>
       </div>
+    </div>
+
+    <div class="mb-4">
+      <h2 class="text-xl font-bold text-slate-950">{{ $t('report.taskListTitle') }}</h2>
+      <p class="mt-1 text-sm text-slate-500">{{ $t('report.taskListSubtitle') }}</p>
     </div>
 
     <div class="space-y-5">

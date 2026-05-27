@@ -47,13 +47,31 @@
     "username": "Username"
   },
   "dashboard": {
+    "defaultLearner": "your training",
+    "eyebrow": "Dashboard",
     "emptyDefinitions": "No test definitions found. Run the question-bank import command.",
     "emptySessions": "No sessions yet.",
+    "latestSubtitle": "A quick view of your latest simulations with only the useful indicators.",
+    "latestTitle": "Latest practice",
+    "practiceCta": "Choose a specific task",
+    "quickStartSubtitle": "Start a full sequence or a focused section with the same timing rules.",
+    "quickStartTitle": "Quick start",
     "recentSessions": "Recent sessions",
     "startFailed": "Could not start this simulation.",
-    "subtitle": "Start a timed simulation and move through the TCF IRN sequence task by task.",
+    "startFull": "Full simulation",
+    "startOral": "Oral section",
+    "startWritten": "Written section",
+    "stats": {
+      "average": "Average",
+      "best": "Best score",
+      "completed": "Completed",
+      "sessions": "Sessions",
+      "tasks": "Tasks done"
+    },
+    "subtitle": "Track simulations, scores, and next practice actions from one place.",
     "targetedPractice": "Targeted single-task practice",
-    "title": "Practice dashboard"
+    "title": "Hello, {name}",
+    "viewAllHistory": "View full history"
   },
   "practice": {
     "anyTask": "Any task",
@@ -70,16 +88,41 @@
     "confirmDelete": "Delete this history item? This cannot be undone.",
     "deleted": "History item deleted.",
     "empty": "No sessions yet.",
+    "eyebrow": "History",
     "fullReport": "Full report",
+    "pagination": {
+      "next": "Next",
+      "page": "Page {page}/{total}",
+      "previous": "Previous",
+      "range": "{start}-{end} of {total} sessions"
+    },
     "subtitle": "Review previous simulations, task feedback, and reports.",
+    "summary": {
+      "average": "Average",
+      "gradedTasks": "Graded tasks",
+      "mixedSections": "Mixed",
+      "noScore": "Not scored yet",
+      "oralCount": "{count} oral",
+      "pendingSummary": "Details will appear after submitted tasks are graded.",
+      "scoredSummary": "{graded} graded task(s), {average} average.",
+      "sections": "Section",
+      "tasks": "Tasks",
+      "tasksDone": "{completed}/{total} task(s) completed",
+      "writtenCount": "{count} written"
+    },
     "taskFeedback": "Task feedback",
-    "title": "Test history"
+    "title": "Test history",
+    "viewExam": "View exam"
   },
   "report": {
     "covered": "Covered",
+    "examDetail": "Exam detail",
+    "eyebrow": "Session",
     "finalReport": "Final report",
     "missing": "Missing",
     "subtitle": "Scores are practice estimates. The official TCF IRN aggregation formula is not public.",
+    "taskListSubtitle": "Each task links to its full feedback, examples, and improved version.",
+    "taskListTitle": "Session tasks",
     "viewTaskFeedback": "View task feedback"
   },
   "taskPage": {
@@ -191,6 +234,20 @@
     "oral": "Oral",
     "written": "Written",
     "practice": "Practice"
+  },
+  "testDefinitions": {
+    "full": {
+      "description": "Oral tasks 1-3 followed by written tasks 4-6.",
+      "name": "Full TCF IRN simulation"
+    },
+    "oral": {
+      "description": "Timed practice for oral tasks 1-3.",
+      "name": "Oral section"
+    },
+    "written": {
+      "description": "Timed practice for written tasks 4-6.",
+      "name": "Written section"
+    }
   },
   "uiKit": {
     "badges": "Badges",
