@@ -6,7 +6,12 @@
         <h1 class="mt-2 text-2xl font-bold text-slate-950">{{ $t('report.examDetail') }}</h1>
         <p class="mt-1 text-sm text-slate-500">{{ $t('report.subtitle') }}</p>
       </div>
-      <UiButton to="/" variant="ghost">{{ $t('common.dashboard') }}</UiButton>
+      <div class="flex flex-wrap items-center gap-2">
+        <UiButton to="/" variant="ghost">{{ $t('common.dashboard') }}</UiButton>
+        <UiButton type="button" variant="danger" :disabled="deleting" @click="deleteExam">
+          {{ deleting ? $t('report.deletingExam') : $t('report.deleteExam') }}
+        </UiButton>
+      </div>
     </div>
 
     <div class="mb-6 grid gap-4 md:grid-cols-2">
@@ -38,8 +43,24 @@ definePageMeta({ requires: 'auth' })
 
 const route = useRoute()
 const api = useApi()
+const { show } = useFlash()
+const { t } = useI18n()
 const sessionUuid = computed(() => String(route.params.sessionUuid))
+const deleting = ref(false)
 const { data: session } = await useAsyncData(`report-${sessionUuid.value}`, () =>
   api.get<TestSession>(`/api/sessions/${sessionUuid.value}/report`),
 )
+
+async function deleteExam() {
+  if (!window.confirm(t('report.confirmDeleteExam'))) return
+
+  deleting.value = true
+  try {
+    await api.del(`/api/sessions/${sessionUuid.value}`)
+    show(t('report.examDeleted'), 'success')
+    await navigateTo('/tests/history')
+  } finally {
+    deleting.value = false
+  }
+}
 </script>

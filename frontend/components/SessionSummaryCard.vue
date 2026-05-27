@@ -51,7 +51,13 @@
           {{ summaryLine }}
         </p>
         <div class="flex flex-wrap gap-2">
-          <UiButton :to="`/tests/${session.uuid}/report`" variant="ghost">{{ $t('history.viewExam') }}</UiButton>
+          <UiButton :to="`/tests/${session.uuid}/report`" variant="ghost">
+            <svg class="mr-2 h-4 w-4" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12 18 18.75 12 18.75 2.25 12 2.25 12Z" />
+              <circle cx="12" cy="12" r="2.75" />
+            </svg>
+            {{ $t('history.viewExam') }}
+          </UiButton>
           <UiButton v-if="deletable" type="button" variant="danger" @click="emit('delete', session.uuid)">{{ $t('common.delete') }}</UiButton>
         </div>
       </div>

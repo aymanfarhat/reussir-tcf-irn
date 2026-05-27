@@ -6,12 +6,6 @@
           <p class="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-700">{{ $t('dashboard.eyebrow') }}</p>
           <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">{{ $t('dashboard.title', { name: userName }) }}</h1>
           <p class="mt-3 text-sm leading-6 text-slate-600">{{ $t('dashboard.subtitle') }}</p>
-          <div class="mt-5 flex flex-wrap gap-3">
-            <UiButton type="button" @click="startDefinition('full')">{{ $t('dashboard.startFull') }}</UiButton>
-            <UiButton type="button" variant="ghost" @click="startDefinition('oral')">{{ $t('dashboard.startOral') }}</UiButton>
-            <UiButton type="button" variant="ghost" @click="startDefinition('written')">{{ $t('dashboard.startWritten') }}</UiButton>
-            <UiButton variant="ghost" to="/practice">{{ $t('dashboard.targetedPractice') }}</UiButton>
-          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:min-w-96 lg:grid-cols-2">
@@ -29,11 +23,18 @@
           <h2 class="text-xl font-bold text-slate-950">{{ $t('dashboard.quickStartTitle') }}</h2>
           <p class="mt-1 text-sm text-slate-500">{{ $t('dashboard.quickStartSubtitle') }}</p>
         </div>
-        <UiButton to="/practice" variant="ghost">{{ $t('dashboard.practiceCta') }}</UiButton>
       </div>
 
-      <div class="grid gap-4 md:grid-cols-3">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <TestModeCard v-for="definition in definitions" :key="definition.sourceId" :definition="definition" @start="start" />
+        <article class="flex h-full flex-col rounded-tcf-card border border-tcf-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-sm">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-sm font-bold leading-snug text-slate-950">{{ $t('dashboard.targetedPractice') }}</h2>
+            <UiBadge>{{ $t('modes.practice') }}</UiBadge>
+          </div>
+          <p class="mt-3 min-h-14 flex-1 text-xs leading-5 text-slate-600">{{ $t('dashboard.targetedPracticeDescription') }}</p>
+          <UiButton class="mt-4 self-start !px-3 !py-1.5 !text-xs" to="/practice">{{ $t('dashboard.practiceCtaShort') }}</UiButton>
+        </article>
         <div v-if="definitions.length === 0" class="rounded-lg border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800">
           {{ $t('dashboard.emptyDefinitions') }}
         </div>
@@ -95,11 +96,6 @@ const heroStats = computed(() => [
   { label: t('dashboard.stats.average'), value: averageScore.value, class: 'text-lime-700' },
   { label: t('dashboard.stats.best'), value: bestScore.value, class: 'text-amber-700' },
 ])
-
-async function startDefinition(mode: 'full' | 'oral' | 'written') {
-  const definition = definitions.value.find((item) => item.mode === mode || item.sourceId === mode)
-  await start(definition?.sourceId ?? mode)
-}
 
 async function start(mode: string) {
   try {

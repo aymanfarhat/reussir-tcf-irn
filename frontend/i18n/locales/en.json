@@ -70,7 +70,9 @@
     },
     "subtitle": "Track simulations, scores, and next practice actions from one place.",
     "targetedPractice": "Targeted single-task practice",
+    "targetedPracticeDescription": "Choose one specific task by type or theme, with the same timing and feedback rules.",
     "title": "Hello, {name}",
+    "practiceCtaShort": "Choose",
     "viewAllHistory": "View full history"
   },
   "practice": {
@@ -115,8 +117,12 @@
     "viewExam": "View exam"
   },
   "report": {
+    "confirmDeleteExam": "Delete this exam from your history? This cannot be undone.",
     "covered": "Covered",
+    "deleteExam": "Delete exam",
+    "deletingExam": "Deleting...",
     "examDetail": "Exam detail",
+    "examDeleted": "Exam deleted.",
     "eyebrow": "Session",
     "finalReport": "Final report",
     "missing": "Missing",

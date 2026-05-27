@@ -70,7 +70,9 @@
     },
     "subtitle": "Suivez vos simulations, vos scores et vos prochains entraînements depuis un seul espace.",
     "targetedPractice": "Pratique ciblée sur une seule tâche",
+    "targetedPracticeDescription": "Choisissez une tâche précise par type ou par thème, avec les mêmes règles de temps et de feedback.",
     "title": "Bonjour, {name}",
+    "practiceCtaShort": "Choisir",
     "viewAllHistory": "Voir tout l'historique"
   },
   "practice": {
@@ -115,8 +117,12 @@
     "viewExam": "Voir l'examen"
   },
   "report": {
+    "confirmDeleteExam": "Supprimer cet examen de votre historique ? Cette action est irréversible.",
     "covered": "Éléments couverts",
+    "deleteExam": "Supprimer l'examen",
+    "deletingExam": "Suppression...",
     "examDetail": "Détail de l'examen",
+    "examDeleted": "Examen supprimé.",
     "eyebrow": "Session",
     "finalReport": "Rapport final",
     "missing": "Éléments manquants",
